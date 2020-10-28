@@ -8,8 +8,7 @@ Authors@R:
            email = "maicrakitta@gmail.com",
            comment = c(ORCID = "YOUR-ORCID-ID"))
 Description: Extension of recent research on distributional robustness and causality under weakened assumptions, with the goal of a robust predictor under heterogeneous environments in a generalized linear framework.
-License: `use_mit_license()`, `use_gpl3_license()` or friends to
-    pick a license
+License: GPL-2
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
@@ -17,4 +16,4 @@ RoxygenNote: 7.1.1
 Suggests: 
     testthat
 Imports: 
-    forcats
+    extraDistr

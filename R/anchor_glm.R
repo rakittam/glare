@@ -1,4 +1,7 @@
-#' Anchor Generalized Linear Model main script
+#' Main script for AGLM
+#'
+#' SCript that constructs Anchor GLM objective and optimizes it
+#' using optim from stats.
 #'
 #' @param Y n-dimensional vector
 #' @param X nxp matrix
@@ -7,14 +10,16 @@
 #' @param m integer
 #' @param family character
 #'
-#' @return
+#' @return numeric
 #' @export
-#'
 #' @examples
-#' #example to be submitted
+#' Y <- c(0,1,0)
+#' X <- matrix(c(1,2,3, 11,12,13), nrow = 3, ncol = 2)
+#' A <- matrix(c(1,-1,-1, 1,-1,1), nrow = 3, ncol = 2)
+#' anchor_glm(Y, X, A, 2, 1, "binomial")
 anchor_glm <- function(Y, X, A, xi, m, family){
 
-  n <- nrow(Y)
+  n <- length(Y)
   p <- ncol(X)
 
   ###############################################################
@@ -42,18 +47,23 @@ anchor_glm <- function(Y, X, A, xi, m, family){
   }
 
   ###############################################################
-  # Assign objective functions depending on glm family
-  likelihood_function <- switch(family,
-                                binary = binary_likelihood,
-                                poisson = poisson_likelihood,
-                                normal = normal_likelihood
-  )
+  # # Assign objective functions depending on glm family
+  # likelihood_function <- switch(family,
+  #                               binary = binary_likelihood,
+  #                               #poisson = poisson_likelihood,
+  #                               #normal = normal_likelihood,
+  #                               empty = NA
+  # )
+  #
+  # penalty_function <- switch(family,
+  #                            binary = binary_penalty,
+  #                            #poisson = poisson_penalty,
+  #                            #normal = normal_penalty,
+  #                            empty = NA
+  # )
 
-  penalty_function <- switch(family,
-                             binary = binary_penalty,
-                             poisson = poisson_penalty,
-                             normal = normal_penalty
-  )
+  likelihood_function <- binary_likelihood
+  penalty_function <- binary_penalty
 
   ###############################################################
   # Construct anchor objective
@@ -63,7 +73,7 @@ anchor_glm <- function(Y, X, A, xi, m, family){
 
   ###############################################################
   # Run optimization algorithm
-  optimized_object <- optim(f=anchor_objective, par = runif(p), method = "L-BFGS-B")
+  optimized_object <- stats::optim(f=anchor_objective, par = stats::runif(p), method = "L-BFGS-B")
   return(optimized_object$par)
 
 }
