@@ -1,16 +1,20 @@
 Package: aglm
-Title: What the Package Does (One Line, Title Case)
+Title: Anchor Generalized Linear Models
 Version: 0.0.0.9000
 Authors@R: 
-    person(given = "First",
-           family = "Last",
+    person(given = "Maic",
+           family = "Rakitta",
            role = c("aut", "cre"),
-           email = "first.last@example.com",
+           email = "maicrakitta@gmail.com",
            comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
+Description: Extension of recent research on distributional robustness and causality under weakened assumptions, with the goal of a robust predictor under heterogeneous environments in a generalized linear framework.
 License: `use_mit_license()`, `use_gpl3_license()` or friends to
     pick a license
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
+Suggests: 
+    testthat
+Imports: 
+    forcats
