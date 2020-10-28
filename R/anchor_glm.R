@@ -46,21 +46,19 @@ anchor_glm <- function(Y, X, A, xi, m, family){
     return(t(r.D)%*%P.A%*%r.D)
   }
 
-  ###############################################################
+  # ##############################################################
   # # Assign objective functions depending on glm family
   # likelihood_function <- switch(family,
-  #                               binary = binary_likelihood,
+  #                               binary = binary_likelihood
   #                               #poisson = poisson_likelihood,
   #                               #normal = normal_likelihood,
-  #                               empty = NA
-  # )
+  #                               )
   #
   # penalty_function <- switch(family,
-  #                            binary = binary_penalty,
+  #                            binary = binary_penalty
   #                            #poisson = poisson_penalty,
   #                            #normal = normal_penalty,
-  #                            empty = NA
-  # )
+  #                            )
 
   likelihood_function <- binary_likelihood
   penalty_function <- binary_penalty
