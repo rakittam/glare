@@ -21,7 +21,7 @@ test_that("workplace for testing main anchor function", {
 
   for (i in 1:n) {
 
-    A[i,] <- extraDistr::rsign(n=2)
+    A[i,] <- sample(c(-1,1), size = 2, replace = TRUE) # rademacher
 
     epsH <- stats::rnorm(n=1, mean=0, sd=1)
     H[i] <- epsH
@@ -69,6 +69,6 @@ test_that("workplace for testing main anchor function", {
     #ans2 <- optim(f=objective, par = runif(ncol(X)), method = "L-BFGS-B")
   }
 
-  expect_equal(AGLM(2), anchor_glm(Y, X, A, 2, m, "binomial"), tolerance = 0.0001)
+  expect_equal(AGLM(2), anchor_glm(Y, X, A, 2, m, "binomial")$par, tolerance = 0.0001)
 
 })
