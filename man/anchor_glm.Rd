@@ -4,7 +4,7 @@
 \alias{anchor_glm}
 \title{Main script for AGLM}
 \usage{
-anchor_glm(Y, X, A, xi, m = 0, family = gaussian)
+anchor_glm(Y, X, A, xi, m = 1, family = gaussian)
 }
 \arguments{
 \item{Y}{n-dimensional vector}
@@ -15,7 +15,7 @@ anchor_glm(Y, X, A, xi, m = 0, family = gaussian)
 
 \item{xi}{numeric}
 
-\item{m}{integer}
+\item{m}{vector}
 
 \item{family}{character}
 }

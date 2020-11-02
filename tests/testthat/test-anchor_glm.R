@@ -69,6 +69,110 @@ test_that("workplace for testing main anchor function", {
     #ans2 <- optim(f=objective, par = runif(ncol(X)), method = "L-BFGS-B")
   }
 
-  expect_equal(AGLM(2), anchor_glm(Y, X, A, 2, m, "binomial")$par, tolerance = 0.0001)
+  expect_equal(AGLM(2), as.numeric(anchor_glm(Y, X, A, 2, m, binomial)$par), tolerance = 0.0001)
+
+
+
+
+
+
+
+#
+#   epsH <- rnorm(n)
+#   epsX <- rnorm(n)
+#   epsY <- rnorm(n)
+#
+#   A <- sample(c(-1,1), size = n, replace = TRUE)
+#   H <- epsH
+#   X <- A+H+epsX
+#   Y <- X+2*H+epsY
+#
+#   X <- as.matrix(X)
+#
+#   anchor.regression <- function(X, Y, A, gamma, n){
+#
+#     P.A <- A%*%solve(t(A)%*%A)%*%t(A)
+#     W <- diag(n)-(1-sqrt(gamma))*P.A
+#
+#     Y.tilde <- W%*%Y
+#     X.tilde <- W%*%X
+#
+#     fit <- lm(Y.tilde~X.tilde-1)
+#   }
+#
+#   expect_equal(as.numeric(anchor.regression(X, Y, A, 2, n)$coef), as.numeric(anchor_glm(Y=Y, X=X, A=A, xi=2, family=gaussian)$par), tolerance = 0.0001)
+#
+
+
+
+
+
+
+
+
+
+  # Anchor coefficients
+  g1 <- 0.5
+
+  # initialize training data
+  A.train <- matrix(nrow = n, ncol = 1)
+  H.train <- matrix(nrow = n, ncol = 1)
+  X.train <- matrix(nrow = n, ncol = 10)
+  Y.train <- matrix(nrow = n, ncol = 1)
+
+  m <- 5 # number of trials for binary distribution
+
+  for (i in 1:n) {
+
+    A.train[i] <- sample(c(-1,1), size = 1, replace = TRUE)
+
+    epsH.train <- rnorm(n=1, mean=0, sd=1)
+    H.train[i] <- epsH.train
+    epsX.train <- rnorm(n=10, mean=0, sd=1)
+    X.train[i,] <- g1*A.train[i]+H.train[i]+epsX.train
+
+    Y.train[i] <- rpois(n=1, exp(1*X.train[i,2]+H.train[i]))
+  }
+
+  # Objective data
+  X <- X.train[,2]
+  Y <- Y.train
+  H <- H.train
+  A <- A.train
+
+  # Orthogonal projection on column space of anchor A
+  P.A <- A%*%solve(t(A)%*%A)%*%t(A)
+
+  AGLM <- function(xi){
+
+    # Step 1. Define the objective loss
+    loss <- function(b.hat){
+      return(sum(Y*(X*b.hat)-exp(X*b.hat)))
+    }
+
+    # Step 2. Define anchor penalty
+    anchor_penalty <- function(b.hat){
+      mu.hat <- exp(X*b.hat) # inverse of logit link
+
+      special.case <- function(Y,mu.hat){
+        ifelse(Y==0|mu.hat==0, mu.hat, Y*log(Y/mu.hat)-(Y-mu.hat))
+      }
+
+      r.D <- sign(Y-mu.hat)*sqrt(2*special.case(Y,mu.hat))
+      return(t(r.D)%*%P.A%*%r.D)
+    }
+
+    # Step 3. Contruct objective by 1. and 2.
+    objective <- function(b.hat){
+      return(1/n*(-loss(b.hat) + xi * anchor_penalty(b.hat)))
+    }
+
+    # Set start value for optimization
+    ans2 <- optim(f=objective, par = runif(1), method = "L-BFGS-B")
+    return(ans2$par)
+  }
+
+  X <- as.matrix(X)
+  expect_equal(AGLM(2), as.numeric(anchor_glm(Y, X, A, 2, m, poisson)$par), tolerance = 0.0001)
 
 })

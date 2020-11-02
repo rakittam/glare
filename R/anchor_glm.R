@@ -7,7 +7,7 @@
 #' @param X nxp matrix
 #' @param A nxq matrix
 #' @param xi numeric
-#' @param m integer
+#' @param m vector
 #' @param family character
 #'
 #' @return numeric
@@ -18,7 +18,7 @@
 #' A <- matrix(c(1,-1,-1, 1,-1,1), nrow = 3, ncol = 2)
 #' anchor_glm(Y, X, A, 2, 1, "binomial")
 #' @importFrom stats glm family gaussian
-anchor_glm <- function(Y, X, A, xi, m = 0, family=gaussian){
+anchor_glm <- function(Y, X, A, xi, m = 1, family=gaussian){
 
   ###############################################################
   # Initializtation
@@ -40,46 +40,39 @@ anchor_glm <- function(Y, X, A, xi, m = 0, family=gaussian){
   # Calculate orthogonal projection onto column space of A
   P.A <- A%*%solve(t(A)%*%A)%*%t(A)
 
-  ###############################################################
-  # Define needed functions
+  #############################################################
+  # Assign objective functions depending on glm family
+  loglike <- switch(family$family,
+                    "binomial" = binary_likelihood,
+                    "poisson" = poisson_likelihood,
+                    "gaussian" = normal_likelihood
+  )
 
-  # Initialize weights, as needed for input in family
-  weights <- rep.int(1, n)
-
-  # Extract aic and deviance residual functions from family
-  aic <- family$aic
-  dev.resids <- family$dev.resids
-
-  # Construct loglikelihood and anchor penalty
-  loglike <- function(b, Y, X, m, weights, p){
-
-    mu <- X%*%b
-    dev <- sum(dev.resids(Y, mu, weights))
-
-    return(1/2*aic(Y, m, mu, weights, dev) - p)
-  }
-
-  AnchPen <- function(b, Y, X, P.A, weights){
-
-    mu <- X%*%b
-    r.D <- dev.resids(Y, mu, weights)
-
-    return(t(r.D)%*%P.A%*%r.D)
-  }
+  AnchPen <- switch(family$family,
+                    "binomial" = binary_penalty,
+                    "poisson" = poisson_penalty,
+                    "gaussian" = normal_penalty
+  )
 
   ###############################################################
   # Construct anchor objective
-  anchor_objective <- function(b.hat){
-    return(1/n*(-loglike(b.hat, Y, X, m, weights, p) + xi * AnchPen(b.hat, Y, X, P.A, weights)))
+    anchor_objective <- function(b.hat){
+    return(1/n*(-loglike(b.hat, Y, X, m) + xi * AnchPen(b.hat, Y, X, m, P.A)))
   }
 
   ###############################################################
   # Run optimization algorithm
 
   # Fit glm for initial parameter guess
-  #fit.glm <- glm(Y, X, family)
 
-  optimized_object <- stats::optim(f=anchor_objective, par = stats::runif(p), method = "L-BFGS-B")
+  yy <- Y
+  if(family$family=="binomial"){
+    yy <- as.factor(Y)
+  }
+  fit.glm <- glm(yy ~ X - 1, family = family$family)
+
+  #optimized_object <- stats::optim(f=anchor_objective, par = stats::runif(p), method = "L-BFGS-B")
+  optimized_object <- stats::optim(f=anchor_objective, par = fit.glm$coefficients, method = "L-BFGS-B")
 
   aglm.fit <- list(par = optimized_object$par,
                    value = optimized_object$value,
