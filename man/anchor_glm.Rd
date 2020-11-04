@@ -4,7 +4,15 @@
 \alias{anchor_glm}
 \title{Main script for AGLM}
 \usage{
-anchor_glm(Y, X, A, xi, m = NULL, family = gaussian)
+anchor_glm(
+  Y,
+  X,
+  A,
+  xi,
+  m = NULL,
+  family = gaussian,
+  type = c("deviance", "pearson")
+)
 }
 \arguments{
 \item{Y}{n-dimensional vector}
@@ -18,6 +26,8 @@ anchor_glm(Y, X, A, xi, m = NULL, family = gaussian)
 \item{m}{vector}
 
 \item{family}{character}
+
+\item{type}{the type of residuals that should be used for the anchor penalty. The alternatives are: "deviance" (default) and "pearson". Can be abbreviated.}
 }
 \value{
 numeric
@@ -25,10 +35,4 @@ numeric
 \description{
 Script that constructs Anchor GLM objective and optimizes it
 using optim from stats.
-}
-\examples{
-Y <- c(0,1,0)
-X <- matrix(c(1,2,3, 11,12,13), nrow = 3, ncol = 2)
-A <- matrix(c(1,-1,-1, 1,-1,1), nrow = 3, ncol = 2)
-anchor_glm(Y, X, A, 2, 1, "binomial")
 }

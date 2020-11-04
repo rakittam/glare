@@ -9,16 +9,15 @@
 #' @param xi numeric
 #' @param m vector
 #' @param family character
+#' @param type the type of residuals that should be used for the anchor penalty. The alternatives are: "deviance" (default) and "pearson". Can be abbreviated.
 #'
 #' @return numeric
 #' @export
-#' @examples
-#' Y <- c(0,1,0)
-#' X <- matrix(c(1,2,3, 11,12,13), nrow = 3, ncol = 2)
-#' A <- matrix(c(1,-1,-1, 1,-1,1), nrow = 3, ncol = 2)
-#' anchor_glm(Y, X, A, 2, 1, "binomial")
 #' @importFrom stats glm family gaussian
-anchor_glm <- function(Y, X, A, xi, m = NULL, family=gaussian){
+anchor_glm <- function(Y, X, A, xi, m = NULL,
+                       family=gaussian, type = c("deviance", "pearson")){
+
+  type <- match.arg(type)
 
   ###############################################################
   # Initializtation
@@ -46,25 +45,49 @@ anchor_glm <- function(Y, X, A, xi, m = NULL, family=gaussian){
 
   #############################################################
   # Assign objective functions depending on glm family
-  loglike <- switch(family$family,
+  log_likelihood <- switch(family$family,
                     "binomial" = binary_likelihood,
                     "poisson" = poisson_likelihood,
                     "gaussian" = normal_likelihood
   )
 
-  AnchPen <- switch(family$family,
-                    "binomial" = binary_penalty,
-                    "poisson" = poisson_penalty,
-                    "gaussian" = normal_penalty
+  deviance_residuals <- switch(family$family,
+                        "binomial" = binary_deviance,
+                        "poisson" = poisson_deviance,
+                        "gaussian" = normal_deviance
   )
 
-  family$logLik <- loglike
-  family$anchPen <- AnchPen
+  # pearsonRes <- switch(family$family,
+  #                       "binomial" = binary_pearson,
+  #                       "poisson" = poisson_pearson,
+  #                       "gaussian" = normal_pearson
+  # )
+
+  anchor_penalty <- function(R, A, ...){
+    fit <- lm(R~A)
+    return(sum((fitted(fit))^2))
+
+    #P.A <- A%*%solve(t(A)%*%A)%*%t(A)
+    #return(t(r.D)%*%P.A%*%r.D)
+  }
+
+  family$logLik <- log_likelihood
+  family$devianceRes <- deviance_residuals
+  # family$pearsonRes <- pearson_residuals
+  family$anchPen <- anchor_penalty
+
+  if(type == "deviance"){
+    anchRes <- deviance_residuals
+  }
+  if(type == "pearson"){
+    anchRes <- pearson_residuals
+  }
 
   ###############################################################
   # Construct anchor objective
   anchor_objective <- function(b.hat){
-    return(1/n.obs*(-loglike(b=b.hat, Y=Y, X=X, linkinv=linkinv, m=m) + xi * AnchPen(b=b.hat, Y=Y, X=X, A=A, linkinv=linkinv, m=m)))
+    return(1/n.obs*(-log_likelihood(b=b.hat, Y=Y, X=X, linkinv=linkinv, m=m) +
+                      xi * anchor_penalty(R=anchRes(b=b.hat, Y=Y, X=X, linkinv=linkinv, m=m), A=A)))
   }
 
   ###############################################################

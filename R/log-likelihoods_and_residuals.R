@@ -1,3 +1,5 @@
+##################################################################################
+
 #' Binary log likelihood
 #'
 #' @param b parameter vector
@@ -17,14 +19,13 @@ binary_likelihood <- function(b, Y, X, m, ...){
 #' @param b parameter vector
 #' @param Y n-dimensional vector
 #' @param X nxp matrix
-#' @param A nXq matrix
 #' @param linkinv inversion of link function
 #' @param m integer
 #' @param ... other
 #'
 #' @return deviance residuals
 #' @export
-binary_deviance_res <- function(b, Y, X, linkinv, m, ...){
+binary_deviance <- function(b, Y, X, linkinv, m, ...){
 
   mu <- linkinv(X%*%b)
 
@@ -37,26 +38,6 @@ binary_deviance_res <- function(b, Y, X, linkinv, m, ...){
   r.D <- sign(Y/m-mu)*sqrt(2*r) # deviance residuals
 
   return(r.D)
-}
-
-#' Binary anchor penalty
-#'
-#' @param b parameter vector
-#' @param Y n-dimensional vector
-#' @param X nxp matrix
-#' @param A nXq matrix
-#' @param linkinv inversion of link function
-#' @param m integer
-#' @param ... other
-#'
-#' @return anchor penalty objective
-#' @export
-binary_penalty <- function(b, Y, X, A, linkinv, m, ...){
-
-  r.D <- binary_deviance_res(b=b, Y=Y, X=X, linkinv=linkinv, m=m)
-
-  fit <- lm(r.D~A)
-  return(sum((fitted(fit))^2))
 }
 
 ##################################################################################
@@ -79,13 +60,12 @@ poisson_likelihood <- function(b, Y, X, ...){
 #' @param b parameter vector
 #' @param Y n-dimensional vector
 #' @param X nxp matrix
-#' @param A nXq matrix
 #' @param linkinv inversion of link function
 #' @param ... other
 #'
 #' @return deviance residuals
 #' @export
-poisson_deviance_res <- function(b, Y, X, A, linkinv, ...){
+poisson_deviance <- function(b, Y, X, linkinv, ...){
 
   mu <- linkinv(X%*%b)
 
@@ -95,28 +75,6 @@ poisson_deviance_res <- function(b, Y, X, A, linkinv, ...){
   r.D <- sign(Y-mu)*sqrt(2 * r)
 
   return(r.D)
-}
-
-#' Poisson anchor penalty
-#'
-#' @param b parameter vector
-#' @param Y n-dimensional vector
-#' @param X nxp matrix
-#' @param A nXq matrix
-#' @param linkinv inversion of link function
-#' @param ... other
-#'
-#' @return anchor penalty objective
-#' @export
-poisson_penalty <- function(b, Y, X, A, linkinv, ...){
-
-  r.D <- poisson_deviance_res(b=b, Y=Y, X=X, A=A, linkinv=linkinv)
-
-  fit <- lm(r.D~A)
-  return(sum((fitted(fit))^2))
-
-  #P.A <- A%*%solve(t(A)%*%A)%*%t(A)
-  #return(t(r.D)%*%P.A%*%r.D)
 }
 
 ##################################################################################
@@ -146,35 +104,15 @@ normal_likelihood <- function(b, Y, X, linkinv, ...){
 #' @param b parameter vector
 #' @param Y n-dimensional vector
 #' @param X nxp matrix
-#' @param A nXq matrix
 #' @param linkinv inversion of link function
 #' @param ... other
 #'
 #' @return deviance residuals
 #' @export
-normal_deviance_res <- function(b, Y, X, A, linkinv, ...){
+normal_deviance <- function(b, Y, X, linkinv, ...){
 
   mu <- linkinv(X%*%b)
   r.D <- Y - mu
 
   return(r.D)
-}
-
-#' Normal anchor penalty
-#'
-#' @param b parameter vector
-#' @param Y n-dimensional vector
-#' @param X nxp matrix
-#' @param A nXq matrix
-#' @param linkinv inversion of link function
-#' @param ... other
-#'
-#' @return anchor penalty objective
-#' @export
-normal_penalty <- function(b, Y, X, A, linkinv, ...){
-
-  r.D <- normal_deviance_res(b=b, Y=Y, X=X, A=A, linkinv=linkinv)
-
-  fit <- lm(r.D~A)
-  return(sum((fitted(fit))^2))
 }
