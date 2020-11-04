@@ -1,6 +1,6 @@
 #' Main script for AGLM
 #'
-#' SCript that constructs Anchor GLM objective and optimizes it
+#' Script that constructs Anchor GLM objective and optimizes it
 #' using optim from stats.
 #'
 #' @param Y n-dimensional vector
@@ -18,10 +18,15 @@
 #' A <- matrix(c(1,-1,-1, 1,-1,1), nrow = 3, ncol = 2)
 #' anchor_glm(Y, X, A, 2, 1, "binomial")
 #' @importFrom stats glm family gaussian
-anchor_glm <- function(Y, X, A, xi, m = 1, family=gaussian){
+anchor_glm <- function(Y, X, A, xi, m = NULL, family=gaussian){
 
   ###############################################################
   # Initializtation
+  data <- list(Y=Y, X=X, A=A)
+
+  # Construction of model formula
+  mf <- model.frame(Y ~ X-1, data)
+  mm <- model.matrix(~ A-1, data)
 
   # Allocate glm family as in glm source code
   if (is.character(family))
@@ -33,12 +38,11 @@ anchor_glm <- function(Y, X, A, xi, m = 1, family=gaussian){
     stop("'family' not recognized")
   }
 
-  # Extract number of observations and parameter dimension
-  n <- length(Y)
-  p <- ncol(X)
+  # Initialize link function
+  linkinv <- family$linkinv
 
-  # Calculate orthogonal projection onto column space of A
-  P.A <- A%*%solve(t(A)%*%A)%*%t(A)
+  # Extract number of observations and parameter dimension
+  n.obs <- length(Y)
 
   #############################################################
   # Assign objective functions depending on glm family
@@ -54,31 +58,43 @@ anchor_glm <- function(Y, X, A, xi, m = 1, family=gaussian){
                     "gaussian" = normal_penalty
   )
 
+  family$logLik <- loglike
+  family$anchPen <- AnchPen
+
   ###############################################################
   # Construct anchor objective
-    anchor_objective <- function(b.hat){
-    return(1/n*(-loglike(b.hat, Y, X, m) + xi * AnchPen(b.hat, Y, X, m, P.A)))
+  anchor_objective <- function(b.hat){
+    return(1/n.obs*(-loglike(b=b.hat, Y=Y, X=X, linkinv=linkinv, m=m) + xi * AnchPen(b=b.hat, Y=Y, X=X, A=A, linkinv=linkinv, m=m)))
   }
 
   ###############################################################
   # Run optimization algorithm
 
-  # Fit glm for initial parameter guess
-
-  yy <- Y
-  if(family$family=="binomial"){
-    yy <- as.factor(Y)
+  # Fit glm for initial parameter value
+  if(family$family=="binomial" & ncol(Y)==1 & m>1){
+    yy <- cbind(Y,m-Y)
+  } else{
+    yy <- Y
   }
+
   fit.glm <- glm(yy ~ X - 1, family = family$family)
 
-  #optimized_object <- stats::optim(f=anchor_objective, par = stats::runif(p), method = "L-BFGS-B")
+  # Optimize anchor objective
   optimized_object <- stats::optim(f=anchor_objective, par = fit.glm$coefficients, method = "L-BFGS-B")
 
-  aglm.fit <- list(par = optimized_object$par,
-                   value = optimized_object$value,
-                   family = family)
+  # Construction of anchor glm class
+  aglm.fit <- list(family = family,
+                   m=m,
+                   xi=xi,
+                   mf = mf,
+                   mm = mm,
+                   data = data,
+                   optim = optimized_object,
+                   coefficients = optimized_object$par
+  )
   class(aglm.fit) <- "anchorglm"
 
   return(aglm.fit)
 
 }
+

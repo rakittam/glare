@@ -69,7 +69,7 @@ test_that("workplace for testing main anchor function", {
     #ans2 <- optim(f=objective, par = runif(ncol(X)), method = "L-BFGS-B")
   }
 
-  expect_equal(AGLM(2), as.numeric(anchor_glm(Y, X, A, 2, m, binomial)$par), tolerance = 0.0001)
+  expect_equal(AGLM(2), as.numeric(anchor_glm(Y, X, A, 2, m, binomial)$optim$par), tolerance = 0.0001)
 
 
 
@@ -173,6 +173,6 @@ test_that("workplace for testing main anchor function", {
   }
 
   X <- as.matrix(X)
-  expect_equal(AGLM(2), as.numeric(anchor_glm(Y, X, A, 2, m, poisson)$par), tolerance = 0.0001)
+  expect_equal(AGLM(2), as.numeric(anchor_glm(Y, X, A, 2, m, poisson)$optim$par), tolerance = 0.0001)
 
 })

@@ -4,7 +4,7 @@
 \alias{anchor_glm}
 \title{Main script for AGLM}
 \usage{
-anchor_glm(Y, X, A, xi, m = 1, family = gaussian)
+anchor_glm(Y, X, A, xi, m = NULL, family = gaussian)
 }
 \arguments{
 \item{Y}{n-dimensional vector}
@@ -23,7 +23,7 @@ anchor_glm(Y, X, A, xi, m = 1, family = gaussian)
 numeric
 }
 \description{
-SCript that constructs Anchor GLM objective and optimizes it
+Script that constructs Anchor GLM objective and optimizes it
 using optim from stats.
 }
 \examples{
