@@ -9,7 +9,7 @@ anchor_glm(
   X,
   A,
   xi,
-  m = NULL,
+  m = 1,
   family = gaussian,
   type = c("deviance", "pearson")
 )

@@ -14,10 +14,13 @@
 #' @return numeric
 #' @export
 #' @importFrom stats glm family gaussian
-anchor_glm <- function(Y, X, A, xi, m = NULL,
+anchor_glm <- function(Y, X, A, xi, m = 1,
                        family=gaussian, type = c("deviance", "pearson")){
 
   type <- match.arg(type)
+
+  # HERE einbauen, if family binomial -> check for form of input and generalize it for this script
+  # use PDF on desktop
 
   ###############################################################
   # Initializtation
@@ -57,11 +60,17 @@ anchor_glm <- function(Y, X, A, xi, m = NULL,
                         "gaussian" = normal_deviance
   )
 
-  # pearsonRes <- switch(family$family,
+  # pearson_residuals <- switch(family$family,
   #                       "binomial" = binary_pearson,
   #                       "poisson" = poisson_pearson,
   #                       "gaussian" = normal_pearson
   # )
+
+  pearson_residuals <- function(b, Y, X, linkinv, m, family, ...){
+    mu <- linkinv(X%*%b)
+    V <- family$variance(mu)
+    return((Y-m*mu)/sqrt(m*V))
+  }
 
   anchor_penalty <- function(R, A, ...){
     fit <- lm(R~A)
@@ -73,7 +82,7 @@ anchor_glm <- function(Y, X, A, xi, m = NULL,
 
   family$logLik <- log_likelihood
   family$devianceRes <- deviance_residuals
-  # family$pearsonRes <- pearson_residuals
+  family$pearsonRes <- pearson_residuals
   family$anchPen <- anchor_penalty
 
   if(type == "deviance"){
@@ -87,7 +96,7 @@ anchor_glm <- function(Y, X, A, xi, m = NULL,
   # Construct anchor objective
   anchor_objective <- function(b.hat){
     return(1/n.obs*(-log_likelihood(b=b.hat, Y=Y, X=X, linkinv=linkinv, m=m) +
-                      xi * anchor_penalty(R=anchRes(b=b.hat, Y=Y, X=X, linkinv=linkinv, m=m), A=A)))
+                      xi * anchor_penalty(R=anchRes(b=b.hat, Y=Y, X=X, linkinv=linkinv, m=m, family=family), A=A)))
   }
 
   ###############################################################

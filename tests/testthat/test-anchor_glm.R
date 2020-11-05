@@ -120,8 +120,6 @@ test_that("workplace for testing main anchor function", {
   X.train <- matrix(nrow = n, ncol = 10)
   Y.train <- matrix(nrow = n, ncol = 1)
 
-  m <- 5 # number of trials for binary distribution
-
   for (i in 1:n) {
 
     A.train[i] <- sample(c(-1,1), size = 1, replace = TRUE)
@@ -173,6 +171,6 @@ test_that("workplace for testing main anchor function", {
   }
 
   X <- as.matrix(X)
-  expect_equal(AGLM(2), as.numeric(anchor_glm(Y=Y, X=X, A=A, xi=2, m=m, family=poisson, type="deviance")$optim$par), tolerance = 0.0001)
+  expect_equal(AGLM(2), as.numeric(anchor_glm(Y=Y, X=X, A=A, xi=2, m=1, family=poisson, type="deviance")$optim$par), tolerance = 0.0001)
 
 })
