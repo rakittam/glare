@@ -1,4 +1,4 @@
-test_that("workplace for testing main anchor function", {
+test_that("Testing construction of binomial anchor objective and optimization", {
 
   set.seed(1)
 
@@ -9,29 +9,25 @@ test_that("workplace for testing main anchor function", {
   # Anchor coefficients
   g1 <- 0.5
   g2 <- -0.2
-  g3 <- -2
+  g3 <- -0.4
+  g4 <- -2
 
-  # initialize training data
-  A <- matrix(nrow = n, ncol = 2)
-  H <- matrix(nrow = n, ncol = 1)
+  m <- sample(1:5, size = n, replace = TRUE) # number of trials for binary distribution
+
+  # Initialize training data
+  A <- matrix(sample(c(-1,1), size = n*2, replace = TRUE), nrow = n, ncol = 2)
+
+  epsH <- matrix(stats::rnorm(n=n*1, mean=0, sd=1), nrow = n, ncol = 1)
+  H <- epsH
+
+  epsX <- matrix(stats::rnorm(n=n*2, mean=0, sd=1), nrow = n, ncol = 2)
   X <- matrix(nrow = n, ncol = 2)
-  Y <- matrix(nrow = n, ncol = 1)
+  X[,1] <- g1*A[,1]+g2*A[,2]+H+epsX[,1]
+  X[,2] <- g1*A[,1]+g3*A[,2]+H+epsX[,2]
 
-  m <- 5 # number of trials for binary distribution
+  Y <- matrix(stats::rbinom(n=n, size=m, stats::plogis(3*X[,1]+3*X[,2]+H+g4*A[,1])), nrow = n, ncol = 1)
 
-  for (i in 1:n) {
-
-    A[i,] <- sample(c(-1,1), size = 2, replace = TRUE) # rademacher
-
-    epsH <- stats::rnorm(n=1, mean=0, sd=1)
-    H[i] <- epsH
-
-    epsX <- stats::rnorm(n=2, mean=0, sd=1)
-    X[i,] <- g1*A[i,1]+g2*A[i,2]+H[i]+epsX
-
-    Y[i] <- stats::rbinom(n=1, size=m, stats::plogis(3*X[i,1]+3*X[i,2]+H[i]+g3*A[i,1]))
-  }
-
+  # Set up test bench
   P.A <- A%*%solve(t(A)%*%A)%*%t(A)
 
   AGLM <- function(xi){
@@ -52,7 +48,6 @@ test_that("workplace for testing main anchor function", {
         ifelse(Y==m, 0, (m-Y)*log((m-Y)/(m-m*p.hat)))
       }
 
-      #r.D <- (Y/m-p.hat)/abs(Y/m-p.hat)*sqrt(2*(Y*log(Y/(m*p.hat))+(m-Y)*log((m-Y)/(m-m*p.hat)))) # deviance residuals
       r.D <- sign(Y/m-p.hat)*sqrt(2*(special.case1(Y)+special.case2(Y))) # deviance residuals
       return(t(r.D)%*%P.A%*%r.D)
     }
@@ -69,76 +64,43 @@ test_that("workplace for testing main anchor function", {
     #ans2 <- optim(f=objective, par = runif(ncol(X)), method = "L-BFGS-B")
   }
 
-  expect_equal(AGLM(2), as.numeric(anchor_glm(Y=Y, X=X, A=A, xi=2, m=m, family=binomial, type="deviance")$optim$par), tolerance = 0.0001)
+  xi=2
+  AGLM(xi=xi)
+  as.numeric(anchor_glm(Y=Y, X=X, A=A, xi=xi, m=m, family=binomial, type="deviance")$optim$par)
+  as.numeric(anchor_glm(Y=Y, X=X, A=A, xi=xi, m=m, family=binomial, type="pearson")$optim$par)
 
+  # Compare results
+  expect_equal(AGLM(2),
+               as.numeric(anchor_glm(Y=Y, X=X, A=A, xi=xi, m=m, family=binomial, type="deviance")$optim$par), tolerance = 0.01)
+})
 
+#####################################################################################
+test_that("Testing construction of poisson anchor objective and optimization", {
 
+  set.seed(1)
 
+  n <- 1000 # number of samples from unpertubed and pertubed distribution
 
-
-
-#
-#   epsH <- rnorm(n)
-#   epsX <- rnorm(n)
-#   epsY <- rnorm(n)
-#
-#   A <- sample(c(-1,1), size = n, replace = TRUE)
-#   H <- epsH
-#   X <- A+H+epsX
-#   Y <- X+2*H+epsY
-#
-#   X <- as.matrix(X)
-#
-#   anchor.regression <- function(X, Y, A, gamma, n){
-#
-#     P.A <- A%*%solve(t(A)%*%A)%*%t(A)
-#     W <- diag(n)-(1-sqrt(gamma))*P.A
-#
-#     Y.tilde <- W%*%Y
-#     X.tilde <- W%*%X
-#
-#     fit <- lm(Y.tilde~X.tilde-1)
-#   }
-#
-#   expect_equal(as.numeric(anchor.regression(X, Y, A, 2, n)$coef), as.numeric(anchor_glm(Y=Y, X=X, A=A, xi=2, family=gaussian)$par), tolerance = 0.0001)
-#
-
-
-
-
-
-
-
-
+  # Initialize data
 
   # Anchor coefficients
   g1 <- 0.5
 
-  # initialize training data
-  A.train <- matrix(nrow = n, ncol = 1)
-  H.train <- matrix(nrow = n, ncol = 1)
-  X.train <- matrix(nrow = n, ncol = 10)
-  Y.train <- matrix(nrow = n, ncol = 1)
+  m <- sample(1:5, size = n, replace = TRUE) # number of trials for binary distribution
 
-  for (i in 1:n) {
+  # Initialize training data
+  A <- matrix(sample(c(-1,1), size = n*1, replace = TRUE), nrow = n, ncol = 1)
 
-    A.train[i] <- sample(c(-1,1), size = 1, replace = TRUE)
+  epsH <- matrix(stats::rnorm(n=n*1, mean=0, sd=1), nrow = n, ncol = 1)
+  H <- epsH
 
-    epsH.train <- rnorm(n=1, mean=0, sd=1)
-    H.train[i] <- epsH.train
-    epsX.train <- rnorm(n=10, mean=0, sd=1)
-    X.train[i,] <- g1*A.train[i]+H.train[i]+epsX.train
+  epsX <- matrix(stats::rnorm(n=n*2, mean=0, sd=1), nrow = n, ncol = 1)
+  X <- matrix(nrow = n, ncol = 1)
+  X <- g1*A+H+epsX
 
-    Y.train[i] <- rpois(n=1, exp(1*X.train[i,2]+H.train[i]))
-  }
+  Y <- matrix(stats::rpois(n=n, exp(X+H)), nrow = n, ncol = 1)
 
-  # Objective data
-  X <- X.train[,2]
-  Y <- Y.train
-  H <- H.train
-  A <- A.train
-
-  # Orthogonal projection on column space of anchor A
+  # Set up test bench
   P.A <- A%*%solve(t(A)%*%A)%*%t(A)
 
   AGLM <- function(xi){
@@ -170,7 +132,58 @@ test_that("workplace for testing main anchor function", {
     return(ans2$par)
   }
 
-  X <- as.matrix(X)
-  expect_equal(AGLM(2), as.numeric(anchor_glm(Y=Y, X=X, A=A, xi=2, m=1, family=poisson, type="deviance")$optim$par), tolerance = 0.0001)
+  xi = 2
+  AGLM(xi)
+  as.numeric(anchor_glm(Y=Y, X=X, A=A, xi=xi, m=1, family=poisson, type="deviance")$optim$par)
+
+  expect_equal(AGLM(xi=2),
+               as.numeric(anchor_glm(Y=Y, X=X, A=A, xi=xi, m=1, family=poisson, type="deviance")$optim$par), tolerance = 0.01)
 
 })
+
+#####################################################################################
+test_that("Testing construction of normal anchor objective and optimization", {
+
+  set.seed(1)
+
+  n <- 1000 # number of samples from unpertubed and pertubed distribution
+
+  # Initialize data
+
+  # Anchor coefficients
+  g1 <- 1
+
+  # Initialize training data
+  A <- matrix(sample(c(-1,1), size = n, replace = TRUE), nrow = n, ncol = 1)
+
+  epsH <- matrix(stats::rnorm(n=n*1, mean=0, sd=1), nrow = n, ncol = 1)
+  H <- epsH
+
+  epsX <- matrix(stats::rnorm(n=n, mean=0, sd=1), nrow = n, ncol = 1)
+  X <- matrix(nrow = n, ncol = 1)
+  X[,1] <- g1*A+H+epsX
+
+  epsY <- epsY <- matrix(stats::rnorm(n=n, mean=0, sd=1), nrow = n, ncol = 1)
+  Y <- matrix(X+2*H+epsY, nrow = n, ncol = 1)
+
+  # Set up test bench
+  anchor.regression <- function(X, Y, A, gamma, n){
+
+    P.A <- A%*%solve(t(A)%*%A)%*%t(A)
+    W <- diag(n)-(1-sqrt(gamma))*P.A
+
+    Y.tilde <- W%*%Y
+    X.tilde <- W%*%X
+
+    fit <- lm(Y.tilde~X.tilde-1)
+  }
+
+  xi = 2
+  as.numeric(anchor.regression(X, Y, A, xi, n)$coef)
+  as.numeric(anchor_glm(Y=Y, X=X, A=A, xi=xi, type="deviance")$optim$par)
+
+  # Compare results
+  expect_equal(as.numeric(anchor.regression(X, Y, A, xi, n)$coef),
+               as.numeric(anchor_glm(Y=Y, X=X, A=A, xi=xi, type="deviance")$optim$par), tolerance = 0.01)
+})
+

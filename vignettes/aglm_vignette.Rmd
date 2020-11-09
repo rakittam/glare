@@ -15,7 +15,70 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 ```
+This vignette provides a simple introduction with examples to the first working aglm package version (...).
 
-```{r setup}
+## Setup
+EXPLAIN HERE HOW THEY GET AND INSTALL THE PACKAGE
+
+```{r}
 library(aglm)
+
 ```
+
+## Example: Binomial framework
+The given example is constructed for a binomial framework. There is a two-dimensional covariate X and a two-dimensional anchor A. First we will construct an artifical data set such that we can show you how you can apply the generalized linear anchor regression method in a second step.  
+
+### Data construction
+As a first step we create simulated training data for our problem. If you want to follow our trace you can use  `set.seed(1)` after you have load the aglm library.
+
+```{r}
+### Initialize data
+
+n <- 1000 # number of observations from unpertubed distribution
+
+# Setting anchor coefficients
+g1 <- 0.5
+g2 <- -0.2
+g3 <- -0.4
+g4 <- -2
+
+# Number of trials for binary distribution
+m <- sample(1:5, size = n, replace = TRUE) 
+
+# Anchor variables
+A <- matrix(sample(c(-1,1), size = n*2, replace = TRUE), nrow = n, ncol = 2)
+
+# Hidden confounders
+epsH <- matrix(stats::rnorm(n=n*1, mean=0, sd=1), nrow = n, ncol = 1)
+H <- epsH 
+
+# Confounders
+epsX <- matrix(stats::rnorm(n=n*2, mean=0, sd=1), nrow = n, ncol = 2)
+X <- matrix(nrow = n, ncol = 2) 
+X[,1] <- g1*A[,1]+g2*A[,2]+H+epsX[,1]
+X[,2] <- g1*A[,1]+g3*A[,2]+H+epsX[,2]
+
+# Response
+Y <- matrix(stats::rbinom(n = n, size = m, prob = stats::plogis(3*X[,1]+3*X[,2]+H+g4*A[,1])),
+            nrow = n, ncol = 1)
+```
+Please feel free to use the setup as it is, or manipulate it to get a feeling for our construction.
+
+### How to apply AGLM
+Now that we have an artificial training data, we can apply the new anchor generalized linear method. For a first try we set the hyperparameter xi to 2 and use deviance residuals for the anchor penalty.
+
+```r
+xi = 2
+aglm.fit <- anchor_glm(Y = Y, X = X, A = A, xi = xi, m = m, family = binomial, type = "deviance")
+```
+### Methods
+We provide several methods for the `anchorglm` class. For details have a look at `methods(class="anchorglm")`. Below we show an example how you can generate predictions given by the learnd model.
+
+```r
+predict(aglm.fit) # predictions for training data
+predict(aglm.fit, newdata = testdata) # predictions for test data
+```
+In the case of the test data, be aware that testdata has to be a list including all nececary variables with correct names. See `?predict.anchorglm` for details.
+
+### Interpretation on a pertubed data set.
+GIVE HERE EXAMPLE PLOTS FOR SEVERAL XI.

@@ -16,17 +16,19 @@
 #' @importFrom stats glm family gaussian
 anchor_glm <- function(Y, X, A, xi, m = 1,
                        family=gaussian, type = c("deviance", "pearson")){
-
-  type <- match.arg(type)
-
-  # HERE einbauen, if family binomial -> check for form of input and generalize it for this script
-  # use PDF on desktop
-
+  # anchor_glm <- function(formula, A = NULL, xi, m = 1,
+  #                        family=gaussian, type = c("deviance", "pearson")){
   ###############################################################
   # Initializtation
-  data <- list(Y=Y, X=X, A=A)
+  type <- match.arg(type)
+
+  # mf <- model.frame(formula, data = environment(formula))
+  # Y <- model.response(mf)
+  # mm <- model.matrix(formula, data = environment(formula))
+  # X <- mm[,"X1"]
 
   # Construction of model formula
+  data <- list(Y=Y, X=X, A=A)
   mf <- model.frame(Y ~ X-1, data)
   mm <- model.matrix(~ A-1, data)
 
@@ -40,6 +42,11 @@ anchor_glm <- function(Y, X, A, xi, m = 1,
     stop("'family' not recognized")
   }
 
+  #if (family = )
+
+  # HERE einbauen, if family binomial -> check for form of input and generalize it for this script
+  # use PDF on desktop
+
   # Initialize link function
   linkinv <- family$linkinv
 
@@ -49,15 +56,15 @@ anchor_glm <- function(Y, X, A, xi, m = 1,
   #############################################################
   # Assign objective functions depending on glm family
   log_likelihood <- switch(family$family,
-                    "binomial" = binary_likelihood,
-                    "poisson" = poisson_likelihood,
-                    "gaussian" = normal_likelihood
+                           "binomial" = binary_likelihood,
+                           "poisson" = poisson_likelihood,
+                           "gaussian" = normal_likelihood
   )
 
   deviance_residuals <- switch(family$family,
-                        "binomial" = binary_deviance,
-                        "poisson" = poisson_deviance,
-                        "gaussian" = normal_deviance
+                               "binomial" = binary_deviance,
+                               "poisson" = poisson_deviance,
+                               "gaussian" = normal_deviance
   )
 
   # pearson_residuals <- switch(family$family,
@@ -76,6 +83,7 @@ anchor_glm <- function(Y, X, A, xi, m = 1,
     fit <- lm(R~A)
     return(sum((fitted(fit))^2))
 
+    # or check invertability and use
     #P.A <- A%*%solve(t(A)%*%A)%*%t(A)
     #return(t(r.D)%*%P.A%*%r.D)
   }
@@ -103,7 +111,7 @@ anchor_glm <- function(Y, X, A, xi, m = 1,
   # Run optimization algorithm
 
   # Fit glm for initial parameter value
-  if(family$family=="binomial" & ncol(Y)==1 & m>1){
+  if(family$family=="binomial" & ncol(Y)==1){
     yy <- cbind(Y,m-Y)
   } else{
     yy <- Y
@@ -129,4 +137,3 @@ anchor_glm <- function(Y, X, A, xi, m = 1,
   return(aglm.fit)
 
 }
-

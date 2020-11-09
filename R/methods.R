@@ -16,9 +16,9 @@ logLik.anchorglm <- function(object, newdata=NULL, ...){
     data <- object$data
   }
 
-  mf <- model.frame(object$mf, data)
-  Y <- model.response(mf)
-  X <- model.matrix(object$mf, data)
+  mf <- stats::model.frame(object$mf, data)
+  Y <- stats::model.response(mf)
+  X <- stats::model.matrix(object$mf, data)
 
   b <- object$optim$par
   m <- object$m
@@ -65,7 +65,7 @@ predict.anchorglm <- function(object, newdata=NULL,
   linkinv <- object$family$linkinv
 
   b <- object$optim$par
-  X <- model.matrix(object$mf, data)
+  X <- stats::model.matrix(object$mf, data)
 
   pred <- switch(type,
                  "link"= X%*%b,
@@ -96,14 +96,51 @@ residuals.anchorglm <- function(object, newdata=NULL,
     data <- object$data
   }
 
-  linkinv <- object$family$linkinv
+  res_function <- switch (type,
+                          "deviance" = aglm_fit$family$devianceRes,
+                          "pearson" = aglm_fit$family$pearsonRes
+  )
 
+  family <- object$family
+
+  linkinv <- family$linkinv
+  m <- object$m
   b <- object$optim$par
-  X <- model.matrix(object$mf, data)
+  X <- data$X
+  Y <- data$Y
 
-  pred <- switch(type,
-                 "link"= X%*%b,
-                 "response"= linkinv(X%*%b))
+  res <- res_function(b, Y, X, linkinv, m, family, ...)
 
-  return(pred)
+  return(res)
 }
+
+
+# #' Summary of a anchor glm object
+# #'
+# #' Returns summary of a anchor glm object
+# #'
+# #' @param object anchor glm object
+# #'
+# #' @return returns object of class "summary.anchorglm"
+# #' @export
+# summary.anchorglm <- function(object){
+#
+#   data <- object$data
+#
+#
+#
+#
+#
+#
+#   family <- object$family
+#
+#   linkinv <- family$linkinv
+#   m <- object$m
+#   b <- object$optim$par
+#   X <- data$X
+#   Y <- data$Y
+#
+#   res <- res_function(b, Y, X, linkinv, m, family, ...)
+#
+#   return(res)
+# }
