@@ -91,12 +91,15 @@ poisson_deviance <- function(b, Y, X, linkinv, ...){
 #' @export
 normal_likelihood <- function(b, Y, X, linkinv, ...){
 
-  n.obs <- nrow(Y)
+  #n.obs <- nrow(Y)
 
   mu <- linkinv(X%*%b)
-  ss <- sum((Y-mu)^2)/n.obs
+  #ss <- sum((Y-mu)^2)/n.obs
 
-  return(-n.obs/2*log(2*pi*ss)-1/(2*ss)*sum((Y-mu)^2))
+  #return(-n.obs/2*log(2*pi*ss)-1/(2*ss)*sum((Y-mu)^2))
+
+  #return(-1/2*sum((Y-mu)^2))
+  return(-sum((Y-mu)^2))
 }
 
 #' Normal deviance residuals

@@ -33,10 +33,10 @@ anchor_glm <- function(formula, A.formula, xi, m = 1,
 
   # Construction of model formula
   data <- environment(formula)
-  mf <- model.frame(formula, data = data)
-  Y <- model.response(mf)
-  X <- model.matrix(formula, data = data)
-  A <- model.matrix(A.formula, data = data)
+  mf <- stats::model.frame(formula, data = data)
+  Y <- stats::model.response(mf)
+  X <- stats::model.matrix(formula, data = data)
+  A <- stats::model.matrix(A.formula, data = data)
 
   # Handle different form of input for binomial data
   yy <- Y # for initial parameter guess we use glm below
@@ -76,8 +76,8 @@ anchor_glm <- function(formula, A.formula, xi, m = 1,
   }
 
   anchor_penalty <- function(R, A, ...){
-    fit <- lm(R~A)
-    return(sum((fitted(fit))^2))
+    fit <- stats::lm(R~A)
+    return(sum((stats::fitted(fit))^2))
 
     # or check invertability and use
     #P.A <- A%*%solve(t(A)%*%A)%*%t(A)

@@ -183,11 +183,12 @@ test_that("Testing construction of normal anchor objective and optimization", {
   }
 
   xi = 2
-  as.numeric(anchor.regression(X, Y, A, xi, n)$coef)
+  gamma <- xi+1
+  as.numeric(anchor.regression(X, Y, A, gamma, n)$coef)
   as.numeric(anchor_glm(formula = Y~X-1, A.formula = ~A-1, xi=xi, type="deviance")$optim$par)
 
   # Compare results
-  expect_equal(as.numeric(anchor.regression(X, Y, A, xi, n)$coef),
+  expect_equal(as.numeric(anchor.regression(X, Y, A, gamma, n)$coef),
                as.numeric(anchor_glm(formula = Y~X-1, A.formula = ~A-1, xi=xi, type="deviance")$optim$par), tolerance = 0.01)
 })
 

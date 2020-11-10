@@ -5,9 +5,8 @@
 \title{Main script for AGLM}
 \usage{
 anchor_glm(
-  Y,
-  X,
-  A,
+  formula,
+  A.formula,
   xi,
   m = 1,
   family = gaussian,
@@ -15,11 +14,9 @@ anchor_glm(
 )
 }
 \arguments{
-\item{Y}{n-dimensional vector}
+\item{formula}{an object of class "formula" for the response and covariate variables.}
 
-\item{X}{nxp matrix}
-
-\item{A}{nxq matrix}
+\item{A.formula}{an object of class "formula" for the anchor variables.}
 
 \item{xi}{numeric}
 
