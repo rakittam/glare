@@ -11,7 +11,7 @@
 #' @return log likelihood objective
 #' @export
 binary_likelihood <- function(b, Y, X, m, ...){
-  return(sum(Y*(X%*%b)-m*log(1+exp(X%*%b))))
+  return(sum(log(choose(m,Y))+Y*(X%*%b)-m*log(1+exp(X%*%b))))
 }
 
 #' Binary deviance residuals

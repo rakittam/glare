@@ -1,22 +1,38 @@
-#' Main script for AGLM
+#' Fitting Anchored Generalized Linear Models
 #'
-#' Script that constructs Anchor GLM objective and optimizes it
-#' using optim from stats.
+#' `anchorglm` is used to fit anchored generalized linear models, specified by giving an anchor variable, a symbolic description of the linear predictor and a description of the error distribution.
 #'
-#' @param formula an object of class "formula" for the response and covariate variables.
-#' @param A.formula an object of class "formula" for the anchor variables.
-#' @param xi numeric
-#' @param m vector
-#' @param family character
-#' @param type the type of residuals that should be used for the anchor penalty. The alternatives are: "deviance" (default) and "pearson". Can be abbreviated.
+#' @param formula an object of class \code{"\link{formula}"} for the response and covariate variables.
+#' @param A.formula an object of class \code{"\link{formula}"} for the anchor variables.
+#' @param data an optional data frame, list or environment containing the variables in the model. If not found in data, the variables are taken from `environment(formula)`.
+#' @param xi a numeric value for the hyperparameter xi.
+#' @param m number of independent bernoulli trials. See the vignette with the binomial example for help.
+#' @param family a description of the error distribution and link function to be used in the model. This can be a character string naming a family function, a family function or the result of a call to a family function. See \code{\link{family}} for details. The families supported up to now are `gaussian`, `binomial` and `poisson`.
+#' @param type the type of residuals that should be used for the anchor penalty. The supported alternatives are `"deviance"` (default) and `"pearson"`. Can be abbreviated.
 #'
-#' @return numeric
+#' @details The response-covariate formula must have the form `response ~ covariates`, where `response` is the response vector and `covariates` is a series of terms which specifies a linear predictor for the response.\cr\cr
+#' For binomial families the response can also be specified as a two-column matrix with the columns giving the numbers of successes and failures.\cr\cr
+#' The anchor formula must have the form `~ anchors`, where `anchors` contains all given anchor variables.
+#'
+#' @return `anchorglm` returns an object of class `"anchorglm"`.\cr\cr
+#' The function \code{\link{summary}} (i.e., \code{\link{summary.anchorglm}}) can be used to obtain or print a summary of the results.\cr\cr
+#' The generic accessor functions `logLik`, `coef`, `predict` and `residuals` can be used to extract various useful features of the value returned by `anchorglm`.\cr\cr
+#' An object of class `"anchorglm"` is a list containing at least the following components:
+#' \item{formula}{the response and covariate \code{"\link{formula}"} used.}
+#' \item{A.formula}{the anchor \code{"\link{formula}"} used.}
+#' \item{data}{the `data` argument.}
+#' \item{xi}{the hyperparameter used.}
+#' \item{m}{the used bernoulli trials coefficients. If not used set to `1`.}
+#' \item{family}{the \code{"\link{formula}"} object used.}
+#' \item{logLik}{the log-likelihood function used corresponding to the used family.}
+#' \item{devianceRes}{the deviance residuals function used corresponding to the used family.}
+#' \item{pearsonRes}{the pearson residuals function used corresponding to the used family.}
+#' \item{optim}{the \code{\link{optim}} output as a list.}
+#' \item{coefficients}{the optimal coefficients derived by optim.}
 #' @export
 #' @importFrom stats glm family gaussian
-anchor_glm <- function(formula, A.formula, xi, m = 1,
+anchorglm <- function(formula, A.formula, data, xi, m = 1,
                        family=gaussian, type = c("deviance", "pearson")){
-  # anchor_glm <- function(formula, A = NULL, xi, m = 1,
-  #                        family=gaussian, type = c("deviance", "pearson")){
   ###############################################################
   # Initializtation
   type <- match.arg(type)
@@ -32,9 +48,10 @@ anchor_glm <- function(formula, A.formula, xi, m = 1,
   }
 
   # Construction of model formula
-  data <- environment(formula)
+  if (missing(data))
+    data <- environment(formula)
   mf <- stats::model.frame(formula, data = data)
-  Y <- stats::model.response(mf)
+  Y <- model.response(mf)
   X <- stats::model.matrix(formula, data = data)
   A <- stats::model.matrix(A.formula, data = data)
 
@@ -78,16 +95,12 @@ anchor_glm <- function(formula, A.formula, xi, m = 1,
   anchor_penalty <- function(R, A, ...){
     fit <- stats::lm(R~A)
     return(sum((stats::fitted(fit))^2))
-
-    # or check invertability and use
-    #P.A <- A%*%solve(t(A)%*%A)%*%t(A)
-    #return(t(r.D)%*%P.A%*%r.D)
   }
 
-  family$logLik <- log_likelihood
-  family$devianceRes <- deviance_residuals
-  family$pearsonRes <- pearson_residuals
-  family$anchPen <- anchor_penalty
+  # family$logLik <- log_likelihood
+  # family$devianceRes <- deviance_residuals
+  # family$pearsonRes <- pearson_residuals
+  # family$anchPen <- anchor_penalty
 
   if(type == "deviance"){
     anchRes <- deviance_residuals
@@ -115,15 +128,18 @@ anchor_glm <- function(formula, A.formula, xi, m = 1,
   fit.glm <- glm(glm.formula, family = family$family)
 
   # Optimize anchor objective
-  optimized_object <- stats::optim(f=anchor_objective, par = as.numeric(fit.glm$coefficients), method = "L-BFGS-B")
+  optimized_object <- stats::optim(f=anchor_objective, par = as.numeric(fit.glm$coefficients), method = "L-BFGS-B", hessian = TRUE)
 
   # Construction of anchor glm class
-  aglm.fit <- list(family = family,
-                   m=m,
-                   xi=xi,
-                   formula = formula,
+  aglm.fit <- list(formula = formula,
                    A.formula = A.formula,
                    data = data,
+                   xi=xi,
+                   m=m,
+                   family = family,
+                   logLik <- log_likelihood,
+                   devianceRes <- deviance_residuals,
+                   pearsonRes <- pearson_residuals,
                    optim = optimized_object,
                    coefficients = optimized_object$par
   )

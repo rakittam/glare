@@ -23,7 +23,7 @@ logLik.anchorglm <- function(object, newdata=NULL, ...){
   b <- object$coefficients
   m <- object$m
 
-  return(object$family$logLik(b=b,Y=Y,X=X,m=m))
+  return(object$logLik(b=b,Y=Y,X=X,m=m))
 }
 
 #' coefficients of anchor glm object
@@ -96,8 +96,8 @@ residuals.anchorglm <- function(object, newdata=NULL,
   }
 
   res_function <- switch(type,
-                         "deviance" = object$family$devianceRes,
-                         "pearson" = object$family$pearsonRes
+                         "deviance" = object$devianceRes,
+                         "pearson" = object$pearsonRes
   )
 
   family <- object$family
