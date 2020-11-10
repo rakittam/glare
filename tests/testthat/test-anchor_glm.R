@@ -66,12 +66,16 @@ test_that("Testing construction of binomial anchor objective and optimization", 
 
   xi=2
   AGLM(xi=xi)
-  as.numeric(anchor_glm(Y=Y, X=X, A=A, xi=xi, m=m, family=binomial, type="deviance")$optim$par)
-  as.numeric(anchor_glm(Y=Y, X=X, A=A, xi=xi, m=m, family=binomial, type="pearson")$optim$par)
+  as.numeric(anchor_glm(formula = Y~X-1, A.formula = ~A-1, xi=xi, m=m, family=binomial, type="deviance")$optim$par)
+  as.numeric(anchor_glm(formula = Y~X-1, A.formula = ~A-1, xi=xi, m=m, family=binomial, type="pearson")$optim$par)
+
+  # Or with (success, fails)
+  YY <- cbind(Y, m-Y)
+  as.numeric(anchor_glm(formula = YY~X-1, A.formula = ~A-1, xi=xi, family=binomial, type="pearson")$optim$par)
 
   # Compare results
   expect_equal(AGLM(2),
-               as.numeric(anchor_glm(Y=Y, X=X, A=A, xi=xi, m=m, family=binomial, type="deviance")$optim$par), tolerance = 0.01)
+               as.numeric(anchor_glm(formula = Y~X-1, A.formula = ~A-1, xi=xi, m=m, family=binomial, type="deviance")$optim$par), tolerance = 0.01)
 })
 
 #####################################################################################
@@ -134,10 +138,10 @@ test_that("Testing construction of poisson anchor objective and optimization", {
 
   xi = 2
   AGLM(xi)
-  as.numeric(anchor_glm(Y=Y, X=X, A=A, xi=xi, m=1, family=poisson, type="deviance")$optim$par)
+  as.numeric(anchor_glm(formula = Y~X-1, A.formula = ~A-1, xi=xi, m=1, family=poisson, type="deviance")$optim$par)
 
   expect_equal(AGLM(xi=2),
-               as.numeric(anchor_glm(Y=Y, X=X, A=A, xi=xi, m=1, family=poisson, type="deviance")$optim$par), tolerance = 0.01)
+               as.numeric(anchor_glm(formula = Y~X-1, A.formula = ~A-1, xi=xi, m=1, family=poisson, type="deviance")$optim$par), tolerance = 0.01)
 
 })
 
@@ -180,10 +184,10 @@ test_that("Testing construction of normal anchor objective and optimization", {
 
   xi = 2
   as.numeric(anchor.regression(X, Y, A, xi, n)$coef)
-  as.numeric(anchor_glm(Y=Y, X=X, A=A, xi=xi, type="deviance")$optim$par)
+  as.numeric(anchor_glm(formula = Y~X-1, A.formula = ~A-1, xi=xi, type="deviance")$optim$par)
 
   # Compare results
   expect_equal(as.numeric(anchor.regression(X, Y, A, xi, n)$coef),
-               as.numeric(anchor_glm(Y=Y, X=X, A=A, xi=xi, type="deviance")$optim$par), tolerance = 0.01)
+               as.numeric(anchor_glm(formula = Y~X-1, A.formula = ~A-1, xi=xi, type="deviance")$optim$par), tolerance = 0.01)
 })
 

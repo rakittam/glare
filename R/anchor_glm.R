@@ -3,9 +3,8 @@
 #' Script that constructs Anchor GLM objective and optimizes it
 #' using optim from stats.
 #'
-#' @param Y n-dimensional vector
-#' @param X nxp matrix
-#' @param A nxq matrix
+#' @param formula an object of class "formula" for the response and covariate variables.
+#' @param A.formula an object of class "formula" for the anchor variables.
 #' @param xi numeric
 #' @param m vector
 #' @param family character
@@ -14,23 +13,13 @@
 #' @return numeric
 #' @export
 #' @importFrom stats glm family gaussian
-anchor_glm <- function(Y, X, A, xi, m = 1,
+anchor_glm <- function(formula, A.formula, xi, m = 1,
                        family=gaussian, type = c("deviance", "pearson")){
   # anchor_glm <- function(formula, A = NULL, xi, m = 1,
   #                        family=gaussian, type = c("deviance", "pearson")){
   ###############################################################
   # Initializtation
   type <- match.arg(type)
-
-  # mf <- model.frame(formula, data = environment(formula))
-  # Y <- model.response(mf)
-  # mm <- model.matrix(formula, data = environment(formula))
-  # X <- mm[,"X1"]
-
-  # Construction of model formula
-  data <- list(Y=Y, X=X, A=A)
-  mf <- model.frame(Y ~ X-1, data)
-  mm <- model.matrix(~ A-1, data)
 
   # Allocate glm family as in glm source code
   if (is.character(family))
@@ -42,10 +31,23 @@ anchor_glm <- function(Y, X, A, xi, m = 1,
     stop("'family' not recognized")
   }
 
-  #if (family = )
+  # Construction of model formula
+  data <- environment(formula)
+  mf <- model.frame(formula, data = data)
+  Y <- model.response(mf)
+  X <- model.matrix(formula, data = data)
+  A <- model.matrix(A.formula, data = data)
 
-  # HERE einbauen, if family binomial -> check for form of input and generalize it for this script
-  # use PDF on desktop
+  # Handle different form of input for binomial data
+  yy <- Y # for initial parameter guess we use glm below
+  if (family$family == "binomial") {
+    if (dim(as.matrix(Y))[2] == 2){
+      m <- yy[,1] + yy[,2]
+      Y <- yy[,1]
+    } else{
+      yy <- cbind(Y,m-Y)
+    }
+  }
 
   # Initialize link function
   linkinv <- family$linkinv
@@ -66,12 +68,6 @@ anchor_glm <- function(Y, X, A, xi, m = 1,
                                "poisson" = poisson_deviance,
                                "gaussian" = normal_deviance
   )
-
-  # pearson_residuals <- switch(family$family,
-  #                       "binomial" = binary_pearson,
-  #                       "poisson" = poisson_pearson,
-  #                       "gaussian" = normal_pearson
-  # )
 
   pearson_residuals <- function(b, Y, X, linkinv, m, family, ...){
     mu <- linkinv(X%*%b)
@@ -111,23 +107,22 @@ anchor_glm <- function(Y, X, A, xi, m = 1,
   # Run optimization algorithm
 
   # Fit glm for initial parameter value
-  if(family$family=="binomial" & ncol(Y)==1){
-    yy <- cbind(Y,m-Y)
+  if ("(Intecept)" %in% attributes(X)$dimnames[[2]]){
+    glm.formula <- yy ~ X
   } else{
-    yy <- Y
+    glm.formula <- yy ~ X - 1
   }
-
-  fit.glm <- glm(yy ~ X - 1, family = family$family)
+  fit.glm <- glm(glm.formula, family = family$family)
 
   # Optimize anchor objective
-  optimized_object <- stats::optim(f=anchor_objective, par = fit.glm$coefficients, method = "L-BFGS-B")
+  optimized_object <- stats::optim(f=anchor_objective, par = as.numeric(fit.glm$coefficients), method = "L-BFGS-B")
 
   # Construction of anchor glm class
   aglm.fit <- list(family = family,
                    m=m,
                    xi=xi,
-                   mf = mf,
-                   mm = mm,
+                   formula = formula,
+                   A.formula = A.formula,
                    data = data,
                    optim = optimized_object,
                    coefficients = optimized_object$par

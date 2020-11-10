@@ -16,16 +16,15 @@ logLik.anchorglm <- function(object, newdata=NULL, ...){
     data <- object$data
   }
 
-  mf <- stats::model.frame(object$mf, data)
+  mf <- stats::model.frame(object$formula, data = data)
   Y <- stats::model.response(mf)
-  X <- stats::model.matrix(object$mf, data)
+  X <- stats::model.matrix(object$formula, data = data)
 
-  b <- object$optim$par
+  b <- object$coefficients
   m <- object$m
 
   return(object$family$logLik(b=b,Y=Y,X=X,m=m))
 }
-
 
 #' coefficients of anchor glm object
 #'
@@ -64,8 +63,8 @@ predict.anchorglm <- function(object, newdata=NULL,
 
   linkinv <- object$family$linkinv
 
-  b <- object$optim$par
-  X <- stats::model.matrix(object$mf, data)
+  b <- object$coefficients
+  X <- stats::model.matrix(object$formula, data = data)
 
   pred <- switch(type,
                  "link"= X%*%b,
@@ -96,18 +95,20 @@ residuals.anchorglm <- function(object, newdata=NULL,
     data <- object$data
   }
 
-  res_function <- switch (type,
-                          "deviance" = aglm_fit$family$devianceRes,
-                          "pearson" = aglm_fit$family$pearsonRes
+  res_function <- switch(type,
+                         "deviance" = object$family$devianceRes,
+                         "pearson" = object$family$pearsonRes
   )
 
   family <- object$family
-
   linkinv <- family$linkinv
+
+  mf <- stats::model.frame(object$formula, data = data)
+  Y <- stats::model.response(mf)
+  X <- stats::model.matrix(object$formula, data = data)
+
+  b <- object$coefficients
   m <- object$m
-  b <- object$optim$par
-  X <- data$X
-  Y <- data$Y
 
   res <- res_function(b, Y, X, linkinv, m, family, ...)
 
