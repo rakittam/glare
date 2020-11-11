@@ -4,7 +4,7 @@
 \alias{binary_likelihood}
 \title{Binary log likelihood}
 \usage{
-binary_likelihood(b, Y, X, m, ...)
+binary_likelihood(b, Y, X, linkinv, m, ...)
 }
 \arguments{
 \item{b}{parameter vector}
@@ -12,6 +12,8 @@ binary_likelihood(b, Y, X, m, ...)
 \item{Y}{n-dimensional vector}
 
 \item{X}{nxp matrix}
+
+\item{linkinv}{inversion of link function}
 
 \item{m}{integer}
 

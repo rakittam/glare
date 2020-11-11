@@ -5,13 +5,18 @@
 #' @param b parameter vector
 #' @param Y n-dimensional vector
 #' @param X nxp matrix
+#' @param linkinv inversion of link function
 #' @param m integer
 #' @param ... other
 #'
 #' @return log likelihood objective
 #' @export
-binary_likelihood <- function(b, Y, X, m, ...){
-  return(sum(log(choose(m,Y))+Y*(X%*%b)-m*log(1+exp(X%*%b))))
+binary_likelihood <- function(b, Y, X, linkinv, m, ...){
+
+  mu <- linkinv(X%*%b)
+
+  return(sum(log(choose(m,Y))+Y*log(mu)+(m-Y)*log(1-mu)))
+  #return(sum(log(choose(m,Y))+Y*(X%*%b)-m*log(1+exp(X%*%b))))
 }
 
 #' Binary deviance residuals
@@ -47,12 +52,20 @@ binary_deviance <- function(b, Y, X, linkinv, m, ...){
 #' @param b parameter vector
 #' @param Y n-dimensional vector
 #' @param X nxp matrix
+#' @param linkinv inversion of link function
 #' @param ... other
 #'
 #' @return log likelihood objective
 #' @export
-poisson_likelihood <- function(b, Y, X, ...){
-  return(sum(Y*(X%*%b)-exp(X%*%b)))
+poisson_likelihood <- function(b, Y, X, linkinv, ...){
+
+  mu <- linkinv(X%*%b)
+
+  return(sum(Y*log(mu)-mu))
+  #return(sum(Y*log(mu)-mu-log(factorial(Y))))
+
+  #return(sum(Y*(X%*%b)-exp(X%*%b)))
+  #return(sum(Y*(X%*%b)-exp(X%*%b)-log(factorial(Y))))
 }
 
 #' Poisson deviance residuals

@@ -4,7 +4,7 @@
 \alias{poisson_likelihood}
 \title{Poisson likelihood}
 \usage{
-poisson_likelihood(b, Y, X, ...)
+poisson_likelihood(b, Y, X, linkinv, ...)
 }
 \arguments{
 \item{b}{parameter vector}
@@ -12,6 +12,8 @@ poisson_likelihood(b, Y, X, ...)
 \item{Y}{n-dimensional vector}
 
 \item{X}{nxp matrix}
+
+\item{linkinv}{inversion of link function}
 
 \item{...}{other}
 }

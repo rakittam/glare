@@ -30,7 +30,7 @@
 #' \item{optim}{the \code{\link{optim}} output as a list.}
 #' \item{coefficients}{the optimal coefficients derived by optim.}
 #' @export
-#' @importFrom stats glm family gaussian
+#' @importFrom stats glm family gaussian model.response model.matrix model.frame lm fitted optim
 anchorglm <- function(formula, A.formula, data, xi, m = 1,
                        family=gaussian, type = c("deviance", "pearson")){
   ###############################################################
@@ -50,13 +50,13 @@ anchorglm <- function(formula, A.formula, data, xi, m = 1,
   # Construction of model formula
   if (missing(data))
     data <- environment(formula)
-  mf <- stats::model.frame(formula, data = data)
+  mf <- model.frame(formula, data = data)
   Y <- model.response(mf)
-  X <- stats::model.matrix(formula, data = data)
-  A <- stats::model.matrix(A.formula, data = data)
+  X <- model.matrix(formula, data = data)
+  A <- model.matrix(A.formula, data = data)
 
   # Handle different form of input for binomial data
-  yy <- Y # for initial parameter guess we use glm below
+  yy <- Y # for initial parameter guess for optim we use glm, see below
   if (family$family == "binomial") {
     if (dim(as.matrix(Y))[2] == 2){
       m <- yy[,1] + yy[,2]
@@ -66,14 +66,14 @@ anchorglm <- function(formula, A.formula, data, xi, m = 1,
     }
   }
 
-  # Initialize link function
+  # Call link function
   linkinv <- family$linkinv
 
-  # Extract number of observations and parameter dimension
+  # Extract number of observations
   n.obs <- length(Y)
 
   #############################################################
-  # Assign objective functions depending on glm family
+  # Assign needed functions depending on given glm family
   log_likelihood <- switch(family$family,
                            "binomial" = binary_likelihood,
                            "poisson" = poisson_likelihood,
@@ -93,14 +93,9 @@ anchorglm <- function(formula, A.formula, data, xi, m = 1,
   }
 
   anchor_penalty <- function(R, A, ...){
-    fit <- stats::lm(R~A)
-    return(sum((stats::fitted(fit))^2))
+    fit.temp <- lm(R~A)
+    return(sum((fitted(fit.temp))^2))
   }
-
-  # family$logLik <- log_likelihood
-  # family$devianceRes <- deviance_residuals
-  # family$pearsonRes <- pearson_residuals
-  # family$anchPen <- anchor_penalty
 
   if(type == "deviance"){
     anchRes <- deviance_residuals
@@ -128,7 +123,7 @@ anchorglm <- function(formula, A.formula, data, xi, m = 1,
   fit.glm <- glm(glm.formula, family = family$family)
 
   # Optimize anchor objective
-  optimized_object <- stats::optim(f=anchor_objective, par = as.numeric(fit.glm$coefficients), method = "L-BFGS-B", hessian = TRUE)
+  optimized_object <- optim(fn=anchor_objective, par = as.numeric(fit.glm$coefficients), method = "L-BFGS-B", hessian = TRUE)
 
   # Construction of anchor glm class
   aglm.fit <- list(formula = formula,
@@ -137,14 +132,13 @@ anchorglm <- function(formula, A.formula, data, xi, m = 1,
                    xi=xi,
                    m=m,
                    family = family,
-                   logLik <- log_likelihood,
-                   devianceRes <- deviance_residuals,
-                   pearsonRes <- pearson_residuals,
+                   logLik = log_likelihood,
+                   devianceRes = deviance_residuals,
+                   pearsonRes = pearson_residuals,
                    optim = optimized_object,
                    coefficients = optimized_object$par
   )
   class(aglm.fit) <- "anchorglm"
 
   return(aglm.fit)
-
 }

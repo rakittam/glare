@@ -8,6 +8,7 @@
 #'
 #' @return numeric
 #' @export
+#' @importFrom stats model.response model.matrix model.frame
 logLik.anchorglm <- function(object, newdata=NULL, ...){
 
   if(!is.null(newdata)) {
@@ -16,14 +17,21 @@ logLik.anchorglm <- function(object, newdata=NULL, ...){
     data <- object$data
   }
 
-  mf <- stats::model.frame(object$formula, data = data)
-  Y <- stats::model.response(mf)
-  X <- stats::model.matrix(object$formula, data = data)
-
+  mf <- model.frame(object$formula, data = data)
+  Y <- model.response(mf)
+  X <- model.matrix(object$formula, data = data)
   b <- object$coefficients
   m <- object$m
 
-  return(object$logLik(b=b,Y=Y,X=X,m=m))
+  # Handle different form of input for binomial data
+  if (dim(as.matrix(Y))[2] == 2){
+    m <- Y[,1] + Y[,2]
+    Y <- Y[,1]
+  }
+
+  linkinv <- object$family$linkinv
+
+  return(object$logLik(b=b, Y=Y, X=X, linkinv=linkinv, m=m))
 }
 
 #' coefficients of anchor glm object
@@ -50,6 +58,7 @@ coef.anchorglm <- function(object, ...){
 #'
 #' @return numeric
 #' @export
+#' @importFrom stats model.matrix
 predict.anchorglm <- function(object, newdata=NULL,
                               type = c("link", "response"), ...){
 
@@ -64,7 +73,7 @@ predict.anchorglm <- function(object, newdata=NULL,
   linkinv <- object$family$linkinv
 
   b <- object$coefficients
-  X <- stats::model.matrix(object$formula, data = data)
+  X <- model.matrix(object$formula, data = data)
 
   pred <- switch(type,
                  "link"= X%*%b,
@@ -84,6 +93,7 @@ predict.anchorglm <- function(object, newdata=NULL,
 #'
 #' @return numeric
 #' @export
+#' @importFrom stats model.response model.matrix model.frame
 residuals.anchorglm <- function(object, newdata=NULL,
                                 type = c("deviance", "pearson"), ...){
 
@@ -103,12 +113,17 @@ residuals.anchorglm <- function(object, newdata=NULL,
   family <- object$family
   linkinv <- family$linkinv
 
-  mf <- stats::model.frame(object$formula, data = data)
-  Y <- stats::model.response(mf)
-  X <- stats::model.matrix(object$formula, data = data)
-
+  mf <- model.frame(object$formula, data = data)
+  Y <- model.response(mf)
+  X <- model.matrix(object$formula, data = data)
   b <- object$coefficients
   m <- object$m
+
+  # Handle different form of input for binomial data
+  if (dim(as.matrix(Y))[2] == 2){
+    m <- Y[,1] + Y[,2]
+    Y <- Y[,1]
+  }
 
   res <- res_function(b, Y, X, linkinv, m, family, ...)
 
