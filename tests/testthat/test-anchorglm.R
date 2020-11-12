@@ -15,15 +15,15 @@ test_that("Testing construction of binomial anchor objective and optimization", 
   m <- sample(1:5, size = n, replace = TRUE) # number of trials for binary distribution
 
   # Initialize training data
-  A <- matrix(sample(c(-1,1), size = n*2, replace = TRUE), nrow = n, ncol = 2)
+  A <- matrix(sample(c(-1, 1), size = n * 2, replace = TRUE), nrow = n, ncol = 2)
 
-  epsH <- matrix(stats::rnorm(n=n*1, mean=0, sd=1), nrow = n, ncol = 1)
+  epsH <- matrix(stats::rnorm(n = n * 1, mean = 0, sd = 1), nrow = n, ncol = 1)
   H <- epsH
 
-  epsX <- matrix(stats::rnorm(n=n*2, mean=0, sd=1), nrow = n, ncol = 2)
+  epsX <- matrix(stats::rnorm(n = n * 2, mean = 0, sd = 1), nrow = n, ncol = 2)
   X <- matrix(nrow = n, ncol = 2)
-  X[,1] <- g1*A[,1]+g2*A[,2]+H+epsX[,1]
-  X[,2] <- g1*A[,1]+g3*A[,2]+H+epsX[,2]
+  X[, 1] <- g1*A[, 1]+g2*A[, 2]+H+epsX[, 1]
+  X[, 2] <- g1*A[, 1]+g3*A[, 2]+H+epsX[, 2]
 
   Y <- matrix(stats::rbinom(n=n, size=m, stats::plogis(3*X[,1]+3*X[,2]+H+g4*A[,1])), nrow = n, ncol = 1)
 
@@ -70,23 +70,23 @@ test_that("Testing construction of binomial anchor objective and optimization", 
   xi=0
   YY <- cbind(Y, m-Y)
   fit.glm <- glm(formula = YY~X-1, family = binomial)
-  fit.aglm <- anchorglm(formula = YY~X-1, A.formula = ~A-1, xi=xi, m=m, family=binomial, type="deviance")
+  fit.aglm <- anchorglm(formula = YY~X-1, A_formula = ~A-1, xi=xi, m=m, family=binomial, type="deviance")
   logLik(fit.glm)
   logLik(fit.aglm)
 
   xi=2
   AGLM(xi=xi)
-  as.numeric(anchorglm(formula = Y~X-1, A.formula = ~A-1, xi=xi, m=m, family=binomial, type="deviance")$optim$par)
-  as.numeric(anchorglm(formula = Y~X-1, A.formula = ~A-1, xi=xi, m=m, family=binomial, type="pearson")$optim$par)
+  as.numeric(anchorglm(formula = Y~X-1, A_formula = ~A-1, xi=xi, m=m, family=binomial, type="deviance")$optim$par)
+  as.numeric(anchorglm(formula = Y~X-1, A_formula = ~A-1, xi=xi, m=m, family=binomial, type="pearson")$optim$par)
 
-  # fit.aglm <- anchorglm(formula = Y~X-1, A.formula = ~A-1, xi=xi, m=m, family=binomial, type="deviance")
+  # fit.aglm <- anchorglm(formula = Y~X-1, A_formula = ~A-1, xi=xi, m=m, family=binomial, type="deviance")
   #
-  # fit.aglm2 <- anchorglm(formula = Y~X-1, A.formula = ~A-1, xi=xi, m=m, family=binomial, type="deviance")
+  # fit.aglm2 <- anchorglm(formula = Y~X-1, A_formula = ~A-1, xi=xi, m=m, family=binomial, type="deviance")
   #
   #
   # # Or with (success, fails)
   # YY <- cbind(Y, m-Y)
-  # as.numeric(anchorglm(formula = YY~X-1, A.formula = ~A-1, xi=xi, family=binomial, type="pearson")$optim$par)
+  # as.numeric(anchorglm(formula = YY~X-1, A_formula = ~A-1, xi=xi, family=binomial, type="pearson")$optim$par)
   # fit.glm <- glm(formula = YY~X-1, family = binomial)
   # #fit.aglm3 <-
   # logLik(fit.aglm)
@@ -95,7 +95,7 @@ test_that("Testing construction of binomial anchor objective and optimization", 
 
   # Compare results
   expect_equal(AGLM(2),
-               as.numeric(anchorglm(formula = Y~X-1, A.formula = ~A-1, xi=xi, m=m, family=binomial, type="deviance")$optim$par), tolerance = 0.00001)
+               as.numeric(anchorglm(formula = Y~X-1, A_formula = ~A-1, xi=xi, m=m, family=binomial, type="deviance")$optim$par), tolerance = 0.00001)
 })
 
 #####################################################################################
@@ -160,16 +160,16 @@ test_that("Testing construction of poisson anchor objective and optimization", {
 
   xi=0
   fit.glm <- glm(formula = Y~X-1, family = poisson)
-  fit.aglm <- anchorglm(formula = Y~X-1, A.formula = ~A-1, xi=xi, m=1, family=poisson, type="deviance")
+  fit.aglm <- anchorglm(formula = Y~X-1, A_formula = ~A-1, xi=xi, m=1, family=poisson, type="deviance")
   logLik(fit.glm)
   logLik(fit.aglm)
 
   xi = 2
   AGLM(xi)
-  as.numeric(anchorglm(formula = Y~X-1, A.formula = ~A-1, xi=xi, m=1, family=poisson, type="deviance")$optim$par)
+  as.numeric(anchorglm(formula = Y~X-1, A_formula = ~A-1, xi=xi, m=1, family=poisson, type="deviance")$optim$par)
 
   expect_equal(AGLM(xi=2),
-               as.numeric(anchorglm(formula = Y~X-1, A.formula = ~A-1, xi=xi, m=1, family=poisson, type="deviance")$optim$par), tolerance = 0.00001)
+               as.numeric(anchorglm(formula = Y~X-1, A_formula = ~A-1, xi=xi, m=1, family=poisson, type="deviance")$optim$par), tolerance = 0.00001)
 
 })
 
@@ -212,17 +212,17 @@ test_that("Testing construction of normal anchor objective and optimization", {
 
   xi=0
   fit.glm <- glm(formula = Y~X-1, family = gaussian)
-  fit.aglm <- anchorglm(formula = Y~X-1, A.formula = ~A-1, xi=xi, m=1, family=gaussian, type="deviance")
+  fit.aglm <- anchorglm(formula = Y~X-1, A_formula = ~A-1, xi=xi, m=1, family=gaussian, type="deviance")
   logLik(fit.glm)
   logLik(fit.aglm)
 
   xi = 2
   gamma <- xi+1
   as.numeric(anchor.regression(X, Y, A, gamma, n)$coef)
-  as.numeric(anchorglm(formula = Y~X-1, A.formula = ~A-1, xi=xi, type="deviance")$optim$par)
+  as.numeric(anchorglm(formula = Y~X-1, A_formula = ~A-1, xi=xi, type="deviance")$optim$par)
 
   # Compare results
   expect_equal(as.numeric(anchor.regression(X, Y, A, gamma, n)$coef),
-               as.numeric(anchorglm(formula = Y~X-1, A.formula = ~A-1, xi=xi, type="deviance")$optim$par), tolerance = 0.01)
+               as.numeric(anchorglm(formula = Y~X-1, A_formula = ~A-1, xi=xi, type="deviance")$optim$par), tolerance = 0.01)
 })
 

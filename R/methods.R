@@ -9,11 +9,11 @@
 #' @return numeric
 #' @export
 #' @importFrom stats model.response model.matrix model.frame
-logLik.anchorglm <- function(object, newdata=NULL, ...){
+logLik.anchorglm <- function(object, newdata=NULL, ...) {
 
-  if(!is.null(newdata)) {
+  if (!is.null(newdata)) {
     data <- newdata
-  } else{
+  } else {
     data <- object$data
   }
 
@@ -24,14 +24,14 @@ logLik.anchorglm <- function(object, newdata=NULL, ...){
   m <- object$m
 
   # Handle different form of input for binomial data
-  if (dim(as.matrix(Y))[2] == 2){
+  if (dim(as.matrix(Y))[2] == 2) {
     m <- Y[,1] + Y[,2]
     Y <- Y[,1]
   }
 
   linkinv <- object$family$linkinv
 
-  return(object$logLik(b=b, Y=Y, X=X, linkinv=linkinv, m=m))
+  object$logLik(b=b, Y=Y, X=X, linkinv=linkinv, m=m)
 }
 
 #' coefficients of anchor glm object
@@ -43,8 +43,8 @@ logLik.anchorglm <- function(object, newdata=NULL, ...){
 #'
 #' @return numeric
 #' @export
-coef.anchorglm <- function(object, ...){
-  return(object$coefficients)
+coef.anchorglm <- function(object, ...) {
+  object$coefficients
 }
 
 #' predictions for anchor glm object
@@ -60,13 +60,13 @@ coef.anchorglm <- function(object, ...){
 #' @export
 #' @importFrom stats model.matrix
 predict.anchorglm <- function(object, newdata=NULL,
-                              type = c("link", "response"), ...){
+                              type = c("link", "response"), ...) {
 
   type <- match.arg(type)
 
-  if(!is.null(newdata)) {
+  if (!is.null(newdata)) {
     data <- newdata
-  } else{
+  } else {
     data <- object$data
   }
 
@@ -79,7 +79,7 @@ predict.anchorglm <- function(object, newdata=NULL,
                  "link"= X%*%b,
                  "response"= linkinv(X%*%b))
 
-  return(pred)
+  pred
 }
 
 #' residuals of a anchor glm object
@@ -95,13 +95,13 @@ predict.anchorglm <- function(object, newdata=NULL,
 #' @export
 #' @importFrom stats model.response model.matrix model.frame
 residuals.anchorglm <- function(object, newdata=NULL,
-                                type = c("deviance", "pearson"), ...){
+                                type = c("deviance", "pearson"), ...) {
 
   type <- match.arg(type)
 
-  if(!is.null(newdata)) {
+  if (!is.null(newdata)) {
     data <- newdata
-  } else{
+  } else {
     data <- object$data
   }
 
@@ -120,14 +120,12 @@ residuals.anchorglm <- function(object, newdata=NULL,
   m <- object$m
 
   # Handle different form of input for binomial data
-  if (dim(as.matrix(Y))[2] == 2){
+  if (dim(as.matrix(Y))[2] == 2) {
     m <- Y[,1] + Y[,2]
     Y <- Y[,1]
   }
 
-  res <- res_function(b, Y, X, linkinv, m, family, ...)
-
-  return(res)
+  res_function(b, Y, X, linkinv, m, family, ...)
 }
 
 

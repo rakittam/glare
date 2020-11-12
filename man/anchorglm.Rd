@@ -15,7 +15,7 @@ anchorglm(
 )
 }
 \arguments{
-\item{formula}{an object of class \code{"\link{formula}"} for the response and covariate variables.}
+\item{formula}{an object of \code{\link[=formula]{formula()}} class \code{"\link{formula}"} for the response and covariate variables.}
 
 \item{A.formula}{an object of class \code{"\link{formula}"} for the anchor variables.}
 
