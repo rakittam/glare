@@ -25,13 +25,13 @@ logLik.anchorglm <- function(object, newdata=NULL, ...) {
 
   # Handle different form of input for binomial data
   if (dim(as.matrix(Y))[2] == 2) {
-    m <- Y[,1] + Y[,2]
-    Y <- Y[,1]
+    m <- Y[, 1] + Y[, 2]
+    Y <- Y[, 1]
   }
 
   linkinv <- object$family$linkinv
 
-  object$logLik(b=b, Y=Y, X=X, linkinv=linkinv, m=m)
+  object$logLik(b = b, Y = Y, X = X, linkinv = linkinv, m = m)
 }
 
 #' coefficients of anchor glm object
@@ -76,8 +76,8 @@ predict.anchorglm <- function(object, newdata=NULL,
   X <- model.matrix(object$formula, data = data)
 
   pred <- switch(type,
-                 "link"= X%*%b,
-                 "response"= linkinv(X%*%b))
+                 "link"= X %*% b,
+                 "response"= linkinv(X %*% b))
 
   pred
 }
@@ -121,11 +121,11 @@ residuals.anchorglm <- function(object, newdata=NULL,
 
   # Handle different form of input for binomial data
   if (dim(as.matrix(Y))[2] == 2) {
-    m <- Y[,1] + Y[,2]
-    Y <- Y[,1]
+    m <- Y[, 1] + Y[, 2]
+    Y <- Y[, 1]
   }
 
-  res_function(b, Y, X, linkinv, m, family, ...)
+  res_function(b = b, Y = Y, X = X, linkinv = linkinv, m = m, family = family)
 }
 
 

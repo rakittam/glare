@@ -6,7 +6,7 @@
 \usage{
 anchorglm(
   formula,
-  A.formula,
+  A_formula,
   data,
   xi,
   m = 1,
@@ -15,9 +15,9 @@ anchorglm(
 )
 }
 \arguments{
-\item{formula}{an object of \code{\link[=formula]{formula()}} class \code{"\link{formula}"} for the response and covariate variables.}
+\item{formula}{an object of class \code{"\link{formula}"} for the response and covariate variables.}
 
-\item{A.formula}{an object of class \code{"\link{formula}"} for the anchor variables.}
+\item{A_formula}{an object of class \code{"\link{formula}"} for the anchor variables.}
 
 \item{data}{an optional data frame, list or environment containing the variables in the model. If not found in data, the variables are taken from \code{environment(formula)}.}
 
@@ -35,7 +35,7 @@ The function \code{\link{summary}} (i.e., \code{\link{summary.anchorglm}}) can b
 The generic accessor functions \code{logLik}, \code{coef}, \code{predict} and \code{residuals} can be used to extract various useful features of the value returned by \code{anchorglm}.\cr\cr
 An object of class \code{"anchorglm"} is a list containing at least the following components:
 \item{formula}{the response and covariate \code{"\link{formula}"} used.}
-\item{A.formula}{the anchor \code{"\link{formula}"} used.}
+\item{A_formula}{the anchor \code{"\link{formula}"} used.}
 \item{data}{the \code{data} argument.}
 \item{xi}{the hyperparameter used.}
 \item{m}{the used bernoulli trials coefficients. If not used set to \code{1}.}
