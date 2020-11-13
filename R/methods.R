@@ -49,11 +49,16 @@ coef.anchorglm <- function(object, ...) {
 
 #' predictions for anchor glm object
 #'
-#' Returns prediction on scale of linear predictor or response of a anchor glm object using train or new data
+#' Returns prediction on scale of linear predictor or response of a anchor glm
+#'  object using train or new data
 #'
 #' @param object anchor glm object
 #' @param newdata used for test data, default is NULL
-#' @param type the type of prediction required. The default is on the scale of the linear predictors; the alternative "response" is on the scale of the response variable. Thus for a default binomial model the default predictions are of log-odds (probabilities on logit scale) and type = "response" gives the predicted probabilities.
+#' @param type the type of prediction required. The default is on the scale of
+#'  the linear predictors; the alternative "response" is on the scale of the
+#'  response variable. Thus for a default binomial model the default predictions
+#'  are of log-odds (probabilities on logit scale) and type = "response" gives
+#'  the predicted probabilities.
 #' @param ... further arguments passed to or from other methods.
 #'
 #' @return numeric
@@ -84,11 +89,13 @@ predict.anchorglm <- function(object, newdata=NULL,
 
 #' residuals of a anchor glm object
 #'
-#' Returns deviance or pearson residuals of a anchor glm object using train or new data
+#' Returns deviance or pearson residuals of a anchor glm object using train or
+#'  new data
 #'
 #' @param object anchor glm object
 #' @param newdata used for test data, default is NULL
-#' @param type the type of residuals which should be returned. The alternatives are: "deviance" (default) and "pearson". Can be abbreviated.
+#' @param type the type of residuals which should be returned. The alternatives
+#'  are: "deviance" (default) and "pearson". Can be abbreviated.
 #' @param ... further arguments passed to or from other methods.
 #'
 #' @return numeric

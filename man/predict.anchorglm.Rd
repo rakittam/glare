@@ -11,7 +11,11 @@
 
 \item{newdata}{used for test data, default is NULL}
 
-\item{type}{the type of prediction required. The default is on the scale of the linear predictors; the alternative "response" is on the scale of the response variable. Thus for a default binomial model the default predictions are of log-odds (probabilities on logit scale) and type = "response" gives the predicted probabilities.}
+\item{type}{the type of prediction required. The default is on the scale of
+the linear predictors; the alternative "response" is on the scale of the
+response variable. Thus for a default binomial model the default predictions
+are of log-odds (probabilities on logit scale) and type = "response" gives
+the predicted probabilities.}
 
 \item{...}{further arguments passed to or from other methods.}
 }
@@ -19,5 +23,6 @@
 numeric
 }
 \description{
-Returns prediction on scale of linear predictor or response of a anchor glm object using train or new data
+Returns prediction on scale of linear predictor or response of a anchor glm
+object using train or new data
 }

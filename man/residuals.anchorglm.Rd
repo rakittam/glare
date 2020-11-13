@@ -11,7 +11,8 @@
 
 \item{newdata}{used for test data, default is NULL}
 
-\item{type}{the type of residuals which should be returned. The alternatives are: "deviance" (default) and "pearson". Can be abbreviated.}
+\item{type}{the type of residuals which should be returned. The alternatives
+are: "deviance" (default) and "pearson". Can be abbreviated.}
 
 \item{...}{further arguments passed to or from other methods.}
 }
@@ -19,5 +20,6 @@
 numeric
 }
 \description{
-Returns deviance or pearson residuals of a anchor glm object using train or new data
+Returns deviance or pearson residuals of a anchor glm object using train or
+new data
 }
