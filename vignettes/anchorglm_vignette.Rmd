@@ -1,0 +1,276 @@
+---
+title: "Anchor GLM"
+author: "Maic Rakitta"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Anchor GLM}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+This vignette provides an introduction with examples to the first working
+anchorglm package (version ...). The reader should be familiar with the theory of anchor generalized linear models. Otherwise, we recommend to first get familiar with the concepts LITERATUR:........
+
+## Setup
+As the package is in development, you can find and install it from github by
+using devtools.
+
+```{r}
+# library(devtools)
+# devtools::install_github("rakittam/anchorglm")
+library(anchorglm)
+library(stats) # used to generate data sets
+library(ggplot2) # used for plots
+
+```
+
+## Example: Binomial Framework
+The given example is constructed in a binomial framework. First we will
+construct an artificial data set such that we can show how you can apply the
+anchored generalized linear model.  
+
+### Data Construction
+As a first step we simulate the unperturbed data for a binomial framework. If
+you want to reproduce our results, please set the corresponding seed,
+`set.seed(1992)`, before you generate the data.
+
+```{r}
+set.seed(1992)
+
+# Number of observations from unperturbed distribution
+n <- 1000 
+
+# Setting anchor coefficients
+g1 <- 0.5
+g2 <- -0.2
+g3 <- -0.4
+g4 <- -2
+
+# Number of trials for binary distribution
+m <- sample(1:5, size = n, replace = TRUE) 
+
+# Anchor variables are drawn from a rademacher distribution
+A <- matrix(sample(c(-1, 1), size = n * 2, replace = TRUE), nrow = n, ncol = 2)
+
+# Hidden confounders
+epsH <- matrix(rnorm(n = n * 1, mean = 0, sd = 1), nrow = n, ncol = 1)
+H <- epsH 
+
+# Confounders
+epsX <- matrix(rnorm(n = n * 2, mean = 0, sd = 1), nrow = n, ncol = 2)
+X <- matrix(nrow = n, ncol = 2) 
+X[, 1] <- g1 * A[, 1] + g2 * A[, 2] + H + epsX[, 1]
+X[, 2] <- g1 * A[, 1] + g3 * A[, 2] + H + epsX[, 2]
+
+# Response
+Y <- matrix(rbinom(n = n,
+                   size = m,
+                   prob = binomial()$linkinv(3 * X[, 1] +
+                                             3 * X[, 2] +
+                                             H +
+                                             g4 * A[, 1])),
+            nrow = n,
+            ncol = 1
+            )
+```
+
+### How to apply `anchorglm`
+Now that we have an artificial training data, we can apply the anchor
+generalized linear method. Response and covariate variables are fed into the
+method using the `formula` class. Also the anchors are provided with a `formula`.
+Note that we are not using an intercept, and hence added a `- 1` to the formula
+expression.
+
+For a first intuition we set the hyperparameter xi to
+2 and use deviance residuals for the anchor penalty.
+
+```{r}
+aglm_fit <- anchorglm(formula = Y ~ X - 1,
+                      A_formula = ~ A - 1,
+                      xi = 2,
+                      m = m,
+                      family = "binomial",
+                      type = "deviance")
+```
+
+By specifying an anchor variable, a symbolic description of the linear predictor
+and a description of the error distribution, we have fitted an anchored
+generalized linear model. The function returns an object of class `"anchorglm"`,
+which can be investigated with ......... (HERE SUMMARY AND WITHOUT SUMMARY)
+The function summary (i.e., summary.anchorglm
+can be used to obtain or print a summary of the results.
+
+It shall be noted that `anchorglm` can handle different form of input for
+binomial data, i.e.
+```{r}
+# Response as a matrix with number of success and losses for each observation
+SL <- cbind(Y, m - Y)
+aglm_fit_SL <- anchorglm(formula = SL ~ X - 1,
+                      A_formula = ~ A - 1,
+                      xi = 2,
+                      family = "binomial",
+                      type = "deviance")
+```
+
+### Interpretation on a perturbed data set
+As a next step we want to investigate our fitted model on a perturbed data set,
+using different values for xi.
+
+#### Perturbed data set
+First we simulate a perturbed data set by manipulating the anchor coefficients,
+while letting the rest the same as in the initial data.
+
+```{r}
+# Initialize perturbed anchor coefficients
+g1_pert <- -1.5
+g2_pert <- -0.5
+g3_pert <- -0.4
+g4_pert <- 2
+
+# Number of trials for binary distribution
+m_pert <- sample(1:5, size = n, replace = TRUE)
+
+# Anchor variables are drawn from a rademacher distribution
+A_pert <- matrix(sample(c(-1, 1), size = n * 2, replace = TRUE), nrow = n, ncol = 2)
+
+# Hidden confounders
+epsH_pert <- matrix(rnorm(n = n * 1, mean = 0, sd = 1), nrow = n, ncol = 1)
+H_pert <- epsH_pert
+
+# Confounders
+epsX_pert <- matrix(rnorm(n = n * 2, mean = 0, sd = 1), nrow = n, ncol = 2)
+X_pert <- matrix(nrow = n, ncol = 2)
+X_pert[, 1] <- g1_pert * A_pert[, 1] + g2_pert * A_pert[, 2] + H_pert + epsX_pert[, 1]
+X_pert[, 2] <- g1_pert * A_pert[, 1] + g3_pert * A_pert[, 2] + H_pert + epsX_pert[, 2]
+
+# Response
+Y_pert <- matrix(rbinom(n = n,
+                        size = m_pert,
+                        prob = plogis(  3 * X_pert[, 1] +
+                                        3 * X_pert[, 2] +
+                                        H_pert +
+                                        g4_pert * A_pert[, 1])),
+                 nrow = n,
+                 ncol = 1
+                 )
+
+data_pert <- data.frame(Y = Y_pert, X = X_pert, A = A_pert, m = m_pert)
+```
+
+#### Iterating over the hyperparameter
+Next, we iterate over xi and fit an `anchorglm` for each iteration. We store the
+estimated coefficients and the average log-likelihood on the perturbed data set.
+```{r}
+xi_vec <- seq(-1, 100, by = 1)
+b_matrix <- matrix(nrow = length(xi_vec), ncol = ncol(X))
+loglikelihood_pert <- numeric(length(xi_vec))
+
+for (i in 1:length(xi_vec)) {
+
+  xi <- xi_vec[i]
+  fit_temp <- anchorglm(formula = Y ~ X - 1,
+                        A_formula = ~ A - 1,
+                        xi = xi,
+                        m = m,
+                        family = "binomial",
+                        type = "deviance")
+
+  b_matrix[i, ] <- coef(fit_temp)
+  loglikelihood_pert[i] <- logLik(fit_temp, newdata = data_pert)
+}
+```
+
+Moreover, we calculate additional estimates for comparison: the classical
+generalized linear model, partialling out the effect of the anchors A and
+letting xi go to infinity. In the following the corresponding parameter estimates and the corresponding log-likelihood on the perturbed data is given. The ready should be aware that anchor glm does not aim for the true underlying causal function, but rather tries to maximize the log-likelihood. Otherwise, we want to link the reader to the corresponding literature ........
+```{r}
+# Optimal xi ------------------------------------------------------------------
+xi_opt <- xi_vec[which.max(loglikelihood_pert)]
+xi_opt
+b_opt <- b_matrix[which.max(loglikelihood_pert), ]
+b_opt
+loglikelihood_pert_opt <- max(loglikelihood_pert)
+loglikelihood_pert_opt
+
+# MLE -------------------------------------------------------------------------
+xi_MLE <- 0
+b_MLE <- b_matrix[which(xi_vec == xi_MLE), ]
+b_MLE
+# which by construction is the same as
+glm(cbind(Y, m - Y) ~ X - 1, family = "binomial")$coef
+loglikelihood_pert_MLE <- loglikelihood_pert[which(xi_vec == xi_MLE)]
+loglikelihood_pert_MLE 
+
+# PA --------------------------------------------------------------------------
+xi_PA <- -1
+b_PA <- b_matrix[which(xi_vec == xi_PA), ]
+b_PA
+loglikelihood_pert_PA <- loglikelihood_pert[which(xi_vec == xi_PA)]
+loglikelihood_pert_PA
+
+# big xi ----------------------------------------------------------------------
+xi_big <- 10000000
+fit_big <- anchorglm(formula = Y ~ X - 1,
+                  A_formula = ~ A - 1,
+                  xi = xi_big,
+                  m = m,
+                  family = "binomial",
+                  type = "deviance")
+b_big <- coef(fit_big)
+b_big
+loglikelihood_pert_big <- logLik(fit_big, newdata = data_pert)
+loglikelihood_pert_big
+```
+
+#### Plot of the results
+Finally we can plot the log-likelihood on the perturbed data with the iterating hyperparameter values. As we can see in the figure, anchorglm can outperform the other methods in terms of maximal log-likelihood.
+
+```{r, fig.height=6, fig.width=6}
+ggplot_data <- data.frame(loglikelihood_pert = loglikelihood_pert,
+                          xi_vec = xi_vec)
+ggplot(data = ggplot_data, aes(y = loglikelihood_pert, x = xi_vec)) +
+
+  geom_line() +
+  
+  labs(title = "Average log-likelihood of the perturped data set",
+       x = "Hyperparameter xi", y = "Average log-likelihood") +
+
+  annotate("point", colour = "red",
+           x = xi_opt, y = loglikelihood_pert_opt) +
+  annotate("text", label = "optimal xi",
+           x = xi_opt, y = loglikelihood_pert_opt + 150) +
+  annotate("point", colour = "green4",
+           x = xi_MLE, y = loglikelihood_pert_MLE) +
+  annotate("text", label = "MLE",
+           x = xi_MLE + 5, y = loglikelihood_pert_MLE) +
+  annotate("point", colour = "blue1",
+           x = xi_PA, y = loglikelihood_pert_PA) +
+  annotate("text", label = "PA",
+           x = xi_PA + 4, y = loglikelihood_pert_PA) +
+
+  geom_hline(yintercept = loglikelihood_pert_big,
+             linetype = "dashed", color = "gray") +
+  annotate("text", label = "Approximated convergence",
+           x = 85, y = loglikelihood_pert_big + 100)
+
+```
+
+### Methods
+We provide several generic accessor functions for the `anchorglm` class, i.e.
+`logLik`, `coef`, `predict` and `residuals`. For a list of all provided methods
+have a look at `methods(class = "anchorglm")`.
+
+For example you can generate predictions given by the learned model for either
+the initial or for new data.
+
+```{r, results='hide'}
+predict(aglm_fit) # predictions for initial unperturbed data
+predict(aglm_fit, newdata = data_pert) # predictions for perturbed data
+```

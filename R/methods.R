@@ -4,12 +4,14 @@
 #'
 #' @param object anchor glm object
 #' @param newdata used for test data, default is NULL
+#' @param parameter parameter that should be used, default takes the parameter
+#'  from the anchorglm objective.
 #' @param ... further arguments passed to or from other methods.
 #'
 #' @return numeric
 #' @export
 #' @importFrom stats model.response model.matrix model.frame
-logLik.anchorglm <- function(object, newdata=NULL, ...) {
+logLik.anchorglm <- function(object, newdata = NULL, parameter = NULL, ...) {
 
   if (!is.null(newdata)) {
     data <- newdata
@@ -20,13 +22,23 @@ logLik.anchorglm <- function(object, newdata=NULL, ...) {
   mf <- model.frame(object$formula, data = data)
   Y <- model.response(mf)
   X <- model.matrix(object$formula, data = data)
-  b <- object$coefficients
-  m <- object$m
+
+  if (!is.null(parameter)) {
+    b <- parameter
+  } else {
+    b <- object$coefficients
+  }
 
   # Handle different form of input for binomial data
   if (dim(as.matrix(Y))[2] == 2) {
     m <- Y[, 1] + Y[, 2]
     Y <- Y[, 1]
+  } else {
+    if (!is.null(newdata)) {
+      m <- newdata$m
+    } else {
+      m <- object$m
+    }
   }
 
   linkinv <- object$family$linkinv
@@ -64,7 +76,7 @@ coef.anchorglm <- function(object, ...) {
 #' @return numeric
 #' @export
 #' @importFrom stats model.matrix
-predict.anchorglm <- function(object, newdata=NULL,
+predict.anchorglm <- function(object, newdata = NULL,
                               type = c("link", "response"), ...) {
 
   type <- match.arg(type)

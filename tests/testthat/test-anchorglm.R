@@ -25,7 +25,7 @@ test_that("Testing construction of binomial anchor objective and optimization", 
   X[, 1] <- g1*A[, 1]+g2*A[, 2]+H+epsX[, 1]
   X[, 2] <- g1*A[, 1]+g3*A[, 2]+H+epsX[, 2]
 
-  Y <- matrix(stats::rbinom(n=n, size=m, stats::plogis(3*X[,1]+3*X[,2]+H+g4*A[,1])), nrow = n, ncol = 1)
+  Y <- matrix(stats::rbinom(n=n, size=m, binomial()$linkinv(3*X[,1]+3*X[,2]+H+g4*A[,1])), nrow = n, ncol = 1)
 
   # Set up test bench
   AGLM <- function(xi) {
@@ -118,7 +118,7 @@ test_that("Testing construction of poisson anchor objective and optimization", {
   X <- matrix(nrow = n, ncol = 1)
   X <- g1 * A + H + epsX
 
-  Y <- matrix(stats::rpois(n = n, exp(X + H)), nrow = n, ncol = 1)
+  Y <- matrix(stats::rpois(n = n, poisson()$linkinv(X + H)), nrow = n, ncol = 1)
 
   # Set up test bench
   AGLM <- function(xi) {
