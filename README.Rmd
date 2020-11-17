@@ -13,12 +13,12 @@ knitr::opts_chunk$set(
 )
 ```
 
-# aglm
+# glare
 
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of aglm is to tackle the problem of robust estimators in heterogeneous environments in a generealized linear framework.
+The goal of glare is to tackle the problem of robust estimators in heterogeneous environments in a generealized linear framework.
 
 ## Installation
 
@@ -26,14 +26,14 @@ You can install the development version from [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("rakittam/aglm")
+devtools::install_github("rakittam/glare")
 ```
 ## Example
 
 This is a basic example which shows you how to solve a common problem:
 
 ```{r example}
-library(aglm)
+library(glare)
 ## basic example code
 # give example here...............
 ```

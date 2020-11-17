@@ -1,6 +1,6 @@
-#' Fitting Anchored Generalized Linear Models
+#' Fitting Generalized Linear Anchor Regression
 #'
-#' `anchorglm` is used to fit anchored generalized linear models, specified by
+#' `glare` is used to fit Generalized Linear Anchor REgression (GLARE), specified by
 #'  giving an anchor variable, a symbolic description of the linear predictor
 #'  and a description of the error distribution.
 #'
@@ -32,13 +32,13 @@
 #'  The anchor formula must have the form `~ anchors`, where `anchors` contains
 #'  all given anchor variables.
 #'
-#' @return `anchorglm` returns an object of class `"anchorglm"`.\cr\cr
-#'  The function \code{\link{summary}} (i.e., \code{\link{summary.anchorglm}})
+#' @return `glare` returns an object of class `"glare"`.\cr\cr
+#'  The function \code{\link{summary}} (i.e., \code{\link{summary.glare}})
 #'  can be used to obtain or print a summary of the results.\cr\cr
 #'  The generic accessor functions `logLik`, `coef`, `predict` and `residuals`
 #'  can be used to extract various useful features of the value returned by
-#'  `anchorglm`.\cr\cr
-#'  An object of class `"anchorglm"` is a list containing at least the
+#'  `glare`.\cr\cr
+#'  An object of class `"glare"` is a list containing at least the
 #'  following components:
 #'  \item{formula}{the response and covariate \code{"\link{formula}"} used.}
 #'  \item{A_formula}{the anchor \code{"\link{formula}"} used.}
@@ -57,7 +57,7 @@
 #' @export
 #' @importFrom stats glm family gaussian model.response model.matrix model.frame
 #'  lm fitted optim
-anchorglm <- function(formula, A_formula, data, xi, m = 1,
+glare <- function(formula, A_formula, data, xi, m = 1,
                        family = gaussian, type = c("deviance", "pearson")) {
   # Initializtation -----------------------------------------------
   type <- match.arg(type)
@@ -118,8 +118,8 @@ anchorglm <- function(formula, A_formula, data, xi, m = 1,
   }
 
   anchor_penalty <- function(R, A, ...) {
-    fit.temp <- lm(R ~ A)
-    sum((fitted(fit.temp))^2)
+    fit_temp <- lm(R ~ A)
+    sum((fitted(fit_temp))^2)
   }
 
   if (type == "deviance") {
@@ -130,13 +130,13 @@ anchorglm <- function(formula, A_formula, data, xi, m = 1,
   }
 
   # Construction of anchor objective ------------------------------------------
-  anchor_objective <- function(b.hat) {
-    1/n.obs * (-log_likelihood(b = b.hat,
+  anchor_objective <- function(b_hat) {
+    1/n.obs * (-log_likelihood(b = b_hat,
                                Y = Y,
                                X = X,
                                linkinv = linkinv,
                                m = m) +
-               xi * anchor_penalty(R = anch_res(b = b.hat,
+               xi * anchor_penalty(R = anch_res(b = b_hat,
                                                 Y = Y,
                                                 X = X,
                                                 linkinv = linkinv,
@@ -153,16 +153,16 @@ anchorglm <- function(formula, A_formula, data, xi, m = 1,
   } else {
     glm_formula <- yy ~ X - 1
   }
-  fit.glm <- glm(glm_formula, family = family$family)
+  glm_fit <- glm(glm_formula, family = family$family)
 
   # Optimize anchor objective
   optimized_object <- optim(fn = anchor_objective,
-                            par = as.numeric(fit.glm$coefficients),
+                            par = as.numeric(glm_fit$coefficients),
                             method = "L-BFGS-B",
                             hessian = TRUE)
 
   # Construction of anchor glm class
-  aglm_fit <- list(formula = formula,
+  glare_fit <- list(formula = formula,
                    A_formula = A_formula,
                    data = data,
                    xi = xi,
@@ -174,7 +174,7 @@ anchorglm <- function(formula, A_formula, data, xi, m = 1,
                    optim = optimized_object,
                    coefficients = optimized_object$par
   )
-  class(aglm_fit) <- "anchorglm"
+  class(glare_fit) <- "glare"
 
-  aglm_fit
+  glare_fit
 }

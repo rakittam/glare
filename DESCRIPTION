@@ -1,5 +1,5 @@
-Package: anchorglm
-Title: Anchor Generalized Linear Models
+Package: glare
+Title: Generalized Linear Anchor Regression
 Version: 0.0.0.9000
 Authors@R: 
     person(given = "Maic",

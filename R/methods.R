@@ -5,13 +5,13 @@
 #' @param object anchor glm object
 #' @param newdata used for test data, default is NULL
 #' @param parameter parameter that should be used, default takes the parameter
-#'  from the anchorglm objective.
+#'  from the glare objective.
 #' @param ... further arguments passed to or from other methods.
 #'
 #' @return numeric
 #' @export
 #' @importFrom stats model.response model.matrix model.frame
-logLik.anchorglm <- function(object, newdata = NULL, parameter = NULL, ...) {
+logLik.glare <- function(object, newdata = NULL, parameter = NULL, ...) {
 
   if (!is.null(newdata)) {
     data <- newdata
@@ -55,7 +55,7 @@ logLik.anchorglm <- function(object, newdata = NULL, parameter = NULL, ...) {
 #'
 #' @return numeric
 #' @export
-coef.anchorglm <- function(object, ...) {
+coef.glare <- function(object, ...) {
   object$coefficients
 }
 
@@ -67,7 +67,7 @@ coef.anchorglm <- function(object, ...) {
 #' @param object anchor glm object
 #' @param newdata used for test data, default is NULL
 #' @param parameter parameter that should be used, default takes the parameter
-#'  from the anchorglm objective.
+#'  from the glare objective.
 #' @param type the type of prediction required. The default is on the scale of
 #'  the linear predictors; the alternative "response" is on the scale of the
 #'  response variable. Thus for a default binomial model the default predictions
@@ -78,7 +78,7 @@ coef.anchorglm <- function(object, ...) {
 #' @return numeric
 #' @export
 #' @importFrom stats model.matrix
-predict.anchorglm <- function(object, newdata = NULL, parameter = NULL,
+predict.glare <- function(object, newdata = NULL, parameter = NULL,
                               type = c("link", "response"), ...) {
 
   type <- match.arg(type)
@@ -114,7 +114,7 @@ predict.anchorglm <- function(object, newdata = NULL, parameter = NULL,
 #' @param object anchor glm object
 #' @param newdata used for test data, default is NULL
 #' @param parameter parameter that should be used, default takes the parameter
-#'  from the anchorglm objective.
+#'  from the glare objective.
 #' @param type the type of residuals which should be returned. The alternatives
 #'  are: "deviance" (default) and "pearson". Can be abbreviated.
 #' @param ... further arguments passed to or from other methods.
@@ -122,7 +122,7 @@ predict.anchorglm <- function(object, newdata = NULL, parameter = NULL,
 #' @return numeric
 #' @export
 #' @importFrom stats model.response model.matrix model.frame
-residuals.anchorglm <- function(object, newdata=NULL, parameter = NULL,
+residuals.glare <- function(object, newdata=NULL, parameter = NULL,
                                 type = c("deviance", "pearson"), ...) {
 
   type <- match.arg(type)
@@ -169,9 +169,9 @@ residuals.anchorglm <- function(object, newdata=NULL, parameter = NULL,
 # #'
 # #' @param object anchor glm object
 # #'
-# #' @return returns object of class "summary.anchorglm"
+# #' @return returns object of class "summary.glare"
 # #' @export
-# summary.anchorglm <- function(object){
+# summary.glare <- function(object){
 #
 #   data <- object$data
 #

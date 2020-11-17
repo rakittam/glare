@@ -1,5 +1,5 @@
 ---
-title: "Anchor GLM"
+title: "Generalized Linear Anchor Regression"
 author: "Maic Rakitta"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
@@ -15,33 +15,35 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 ```
-This vignette provides an introduction with examples to the first working
-anchorglm package (version ...). The reader should be familiar with the theory
-of anchor generalized linear models. Otherwise, we recommend to first get
-familiar with the concepts LITERATUR:........
+This vignette offers an introduction with examples of the first Generalized Linear Anchor REgression (GLARE) package version. We extended the work of Dominik Rothenhaeusler, Nicolai Meinshausen, Peter Buehlmann and Jonas Peters, who developed a linear anchor regression method. GLARE extends their work from a linear to a generalized linear framework. In this vignette we give only a thin theoretical introduction to GLARE and focus more on how the reader can apply the corresponding R package. Since the development is not yet finished, we are grateful for your input. Furthermore, we cannot yet provide GLARE literature. For anchor regression we recommend the corresponding work of Rothenhaeusler et al.
 
-## Setup
-As the package is in development, you can find and install it from github by
-using devtools.
+This vignette makes no claim to completeness, but rather provides a first insight into our method.
+
+## Short Introduction
+Similarly to the theory of Rothenhaeusler et al., GLARE estimates its parameter by minimizing an objective function. However, instead of interpolating between the solutions of ordinary least squares and two-stage least squares, we adapt GLARE to the GLM framework, such that the corresponding objective function minimization results in
+$$\beta^\xi = \arg\min_\beta -\frac{1}{n}l(\beta; Y, X) + \frac{1}{n}\xi ||Ar||_2^2,$$
+where $X \in \mathbb{R}^{n\times p}$ are the covariates, $Y \in \mathbb{R}^{n}$ is the response, $A \in \mathbb{R}^{n\times q}$ are the anchor variables and $r \in \mathbb{R}^{n}$ are the appropriate residuals (e.g. deviance residuals, pearson residuals). The hyperparameter $\xi \in \{-1, \infty\}$ interpolates between maximizing the log-likelihood, $l$, and partialling out the effect of the anchor onto the residuals. Note that there can also be hidden variables, $H \in \mathbb{R}^{n\times h}$, influencing both the response and the covariates.
+
+## Getting started
+The package is still in development. For the most up-to-date version, feel free to send a request directly to the author (rakittam@student.ethz.ch) to receive the corresponding source package.
+
+If you need help to install the package from source, please have a look at http://www.ryantmoore.org/files/ht/htrtargz.pdf .
+
+For this vignette, up to GLARE, the following libraries are necessary:
 
 ```{r}
-# library(devtools)
-# devtools::install_github("rakittam/anchorglm")
-library(anchorglm)
+library(glare) 
 library(stats) # used to generate data sets
 library(ggplot2) # used for plots
 
 ```
 
 ## Example: Binomial Framework
-The given example is constructed in a binomial framework. First we will
-construct an artificial data set such that we can show how you can apply the
-anchored generalized linear model.  
+The given example is constructed in a binomial framework. First we
+construct an artificial data set. Next, we show how to apply GLARE to the generated data. Finally, we investigate the model on a perturbed data set and plot some result.
 
 ### Data Construction
-As a first step we simulate the unperturbed data for a binomial framework. If
-you want to reproduce our results, please set the corresponding seed,
-`set.seed(1992)`, before you generate the data.
+In this section we simulate the unperturbed data for the binomial example. If you want to reproduce our results, please set the corresponding seed, `set.seed(1992)`, before you generate the data.
 
 ```{r}
 set.seed(1992)
@@ -58,9 +60,9 @@ g4 <- -2
 # Number of trials for binary distribution
 m <- sample(1:5, size = n, replace = TRUE) 
 
-# Anchor variables are drawn from a rademacher distribution
+# Anchor variables
 A <- matrix(sample(c(-1, 1), size = n * 2, replace = TRUE),
-            nrow = n, ncol = 2)
+            nrow = n, ncol = 2) # rademacher distribution
 
 # Hidden confounders
 epsH <- matrix(rnorm(n = n * 1, mean = 0, sd = 1),
@@ -80,18 +82,17 @@ Y <- matrix(rbinom(n = n, size = m, prob = p),
             nrow = n, ncol = 1)
 ```
 
-### How to apply `anchorglm`
-Now that we have an artificial training data, we can apply the anchor
-generalized linear method. Response and covariate variables are fed into the
-method using the `formula` class. Also the anchors are provided with a `formula`.
+### How to apply `glare`
+Now that we have an artificial training data, we can apply GLARE. Response and covariate variables are fed into the
+method using the `formula` class. Also the anchors are provided with a corresponding `formula`.
 Note that we are not using an intercept, and hence added a `- 1` to the formula
 expression.
 
-For a first intuition we set the hyperparameter xi to
-2 and use deviance residuals for the anchor penalty.
+For a first intuition we set the hyperparameter, $\xi$, to
+two and use deviance residuals for the anchor penalty.
 
 ```{r}
-aglm_fit <- anchorglm(formula = Y ~ X - 1,
+aglm_fit <- glare(formula = Y ~ X - 1,
                       A_formula = ~ A - 1,
                       xi = 2,
                       m = m,
@@ -100,18 +101,14 @@ aglm_fit <- anchorglm(formula = Y ~ X - 1,
 ```
 
 By specifying an anchor variable, a symbolic description of the linear predictor
-and a description of the error distribution, we have fitted an anchored
-generalized linear model. The function returns an object of class `"anchorglm"`,
-which can be investigated with ......... (HERE SUMMARY AND WITHOUT SUMMARY)
-The function summary (i.e., summary.anchorglm
-can be used to obtain or print a summary of the results.
+and a description of the error distribution, we have fitted a generalized linear anchor model. The function returns an object of class `"glare"`.
 
-It shall be noted that `anchorglm` can handle different form of input for
+It shall be noted that `glare` can handle different form of input for
 binomial data, i.e.
 ```{r}
 # Response as a matrix with number of success and losses for each observation
 SL <- cbind(Y, m - Y)
-aglm_fit_SL <- anchorglm(formula = SL ~ X - 1,
+aglm_fit_SL <- glare(formula = SL ~ X - 1,
                          A_formula = ~ A - 1,
                          xi = 2,
                          family = "binomial",
@@ -119,8 +116,7 @@ aglm_fit_SL <- anchorglm(formula = SL ~ X - 1,
 ```
 
 ### Interpretation on a perturbed data set
-As a next step we want to investigate our fitted model on a perturbed data set,
-using different values for xi.
+In this section we want to investigate our model trained on the initial data using different values for $\xi$, on a perturbed data set.
 
 #### Perturbed data set
 First we simulate a perturbed data set by manipulating the anchor coefficients,
@@ -162,7 +158,7 @@ data_pert <- data.frame(Y = Y_pert, X = X_pert, A = A_pert, m = m_pert)
 ```
 
 #### Iterating over the hyperparameter
-Next, we iterate over xi and fit an `anchorglm` for each iteration. We store the
+Next, we iterate over $\xi$ and use `glare` for each iteration. We store the
 estimated coefficients and the average log-likelihood on the perturbed data set.
 ```{r}
 xi_vec <- seq(-1, 100, by = 1)
@@ -172,7 +168,7 @@ loglikelihood_pert <- numeric(length(xi_vec))
 for (i in 1:length(xi_vec)) {
 
   xi <- xi_vec[i]
-  fit_temp <- anchorglm(formula = Y ~ X - 1,
+  fit_temp <- glare(formula = Y ~ X - 1,
                         A_formula = ~ A - 1,
                         xi = xi,
                         m = m,
@@ -184,9 +180,9 @@ for (i in 1:length(xi_vec)) {
 }
 ```
 
-Moreover, we calculate additional estimates for comparison: the classical
+Moreover, we calculate additional estimates for comparison: classical
 generalized linear model, partialling out the effect of the anchors A and
-letting xi go to infinity. In the following the corresponding parameter estimates and the corresponding log-likelihood on the perturbed data is given. The ready should be aware that anchor glm does not aim for the true underlying causal function, but rather tries to maximize the log-likelihood. Otherwise, we want to link the reader to the corresponding literature ........
+letting $\xi$ go to infinity. In the following the corresponding parameter estimates and the corresponding log-likelihood on the perturbed data is given. The reader should be aware that like anchor regression, GLARE does not aim for the true underlying causal function, but rather tries to maximize the log-likelihood.
 ```{r}
 # Optimal xi ------------------------------------------------------------------
 xi_opt <- xi_vec[which.max(loglikelihood_pert)]
@@ -214,7 +210,7 @@ loglikelihood_pert_PA
 
 # big xi ----------------------------------------------------------------------
 xi_big <- 10000000
-fit_big <- anchorglm(formula = Y ~ X - 1,
+fit_big <- glare(formula = Y ~ X - 1,
                   A_formula = ~ A - 1,
                   xi = xi_big,
                   m = m,
@@ -227,7 +223,7 @@ loglikelihood_pert_big
 ```
 
 #### Plot of the results
-Finally we can plot the log-likelihood on the perturbed data with the iterating hyperparameter values. As we can see in the figure, anchorglm can outperform the other methods in terms of maximal log-likelihood.
+Finally, we can plot the log-likelihood on the perturbed data against the hyperparameter values. As we can see in the figure, in this setup GLARE outperforms the other methods in terms of maximal log-likelihood on the perturbed data.
 
 ```{r, fig.height=6, fig.width=6}
 ggplot_data <- data.frame(loglikelihood_pert = loglikelihood_pert,
@@ -260,9 +256,9 @@ ggplot(data = ggplot_data, aes(y = loglikelihood_pert, x = xi_vec)) +
 ```
 
 ### Methods
-We provide several generic accessor functions for the `anchorglm` class, i.e.
-`logLik`, `coef`, `predict` and `residuals`. For a list of all provided methods
-have a look at `methods(class = "anchorglm")`.
+We provide several generic accessor functions for the `glare` class, i.e.
+`logLik`, `coef`, `predict` and `residuals`. For a list of all currently provided methods
+have a look at `methods(class = "glare")`.
 
 For example you can generate predictions given by the learned model for either
 the initial or for new data.
