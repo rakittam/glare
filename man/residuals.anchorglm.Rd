@@ -4,12 +4,21 @@
 \alias{residuals.anchorglm}
 \title{residuals of a anchor glm object}
 \usage{
-\method{residuals}{anchorglm}(object, newdata = NULL, type = c("deviance", "pearson"), ...)
+\method{residuals}{anchorglm}(
+  object,
+  newdata = NULL,
+  parameter = NULL,
+  type = c("deviance", "pearson"),
+  ...
+)
 }
 \arguments{
 \item{object}{anchor glm object}
 
 \item{newdata}{used for test data, default is NULL}
+
+\item{parameter}{parameter that should be used, default takes the parameter
+from the anchorglm objective.}
 
 \item{type}{the type of residuals which should be returned. The alternatives
 are: "deviance" (default) and "pearson". Can be abbreviated.}

@@ -13,7 +13,8 @@ binary_likelihood <- function(b, Y, X, linkinv, m, ...) {
 
   mu <- linkinv(X %*% b)
 
-  sum(log(choose(m, Y)) + Y * log(mu) + (m - Y) * log(1 - mu))
+  #sum(log(choose(m, Y)) + Y * log(mu) + (m - Y) * log(1 - mu))
+  sum(dbinom(Y, m, mu, log = TRUE))
 }
 
 #' Binary deviance residuals
@@ -55,8 +56,9 @@ poisson_likelihood <- function(b, Y, X, linkinv, ...) {
 
   mu <- linkinv(X %*% b)
 
-  sum(Y * log(mu) - mu)
+  #sum(Y * log(mu) - mu)
   #sum(Y * log(mu) - mu - log(factorial(Y)))
+  sum(dpois(Y, mu, log = TRUE))
 }
 
 #' Poisson deviance residuals

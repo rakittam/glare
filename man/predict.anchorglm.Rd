@@ -4,12 +4,21 @@
 \alias{predict.anchorglm}
 \title{predictions for anchor glm object}
 \usage{
-\method{predict}{anchorglm}(object, newdata = NULL, type = c("link", "response"), ...)
+\method{predict}{anchorglm}(
+  object,
+  newdata = NULL,
+  parameter = NULL,
+  type = c("link", "response"),
+  ...
+)
 }
 \arguments{
 \item{object}{anchor glm object}
 
 \item{newdata}{used for test data, default is NULL}
+
+\item{parameter}{parameter that should be used, default takes the parameter
+from the anchorglm objective.}
 
 \item{type}{the type of prediction required. The default is on the scale of
 the linear predictors; the alternative "response" is on the scale of the

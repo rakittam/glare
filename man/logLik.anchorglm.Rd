@@ -4,12 +4,15 @@
 \alias{logLik.anchorglm}
 \title{log likelihood of a anchor glm object}
 \usage{
-\method{logLik}{anchorglm}(object, newdata = NULL, ...)
+\method{logLik}{anchorglm}(object, newdata = NULL, parameter = NULL, ...)
 }
 \arguments{
 \item{object}{anchor glm object}
 
 \item{newdata}{used for test data, default is NULL}
+
+\item{parameter}{parameter that should be used, default takes the parameter
+from the anchorglm objective.}
 
 \item{...}{further arguments passed to or from other methods.}
 }

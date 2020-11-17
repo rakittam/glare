@@ -66,6 +66,8 @@ coef.anchorglm <- function(object, ...) {
 #'
 #' @param object anchor glm object
 #' @param newdata used for test data, default is NULL
+#' @param parameter parameter that should be used, default takes the parameter
+#'  from the anchorglm objective.
 #' @param type the type of prediction required. The default is on the scale of
 #'  the linear predictors; the alternative "response" is on the scale of the
 #'  response variable. Thus for a default binomial model the default predictions
@@ -76,7 +78,7 @@ coef.anchorglm <- function(object, ...) {
 #' @return numeric
 #' @export
 #' @importFrom stats model.matrix
-predict.anchorglm <- function(object, newdata = NULL,
+predict.anchorglm <- function(object, newdata = NULL, parameter = NULL,
                               type = c("link", "response"), ...) {
 
   type <- match.arg(type)
@@ -89,7 +91,12 @@ predict.anchorglm <- function(object, newdata = NULL,
 
   linkinv <- object$family$linkinv
 
-  b <- object$coefficients
+  if (!is.null(parameter)) {
+    b <- parameter
+  } else {
+    b <- object$coefficients
+  }
+
   X <- model.matrix(object$formula, data = data)
 
   pred <- switch(type,
@@ -106,6 +113,8 @@ predict.anchorglm <- function(object, newdata = NULL,
 #'
 #' @param object anchor glm object
 #' @param newdata used for test data, default is NULL
+#' @param parameter parameter that should be used, default takes the parameter
+#'  from the anchorglm objective.
 #' @param type the type of residuals which should be returned. The alternatives
 #'  are: "deviance" (default) and "pearson". Can be abbreviated.
 #' @param ... further arguments passed to or from other methods.
@@ -113,7 +122,7 @@ predict.anchorglm <- function(object, newdata = NULL,
 #' @return numeric
 #' @export
 #' @importFrom stats model.response model.matrix model.frame
-residuals.anchorglm <- function(object, newdata=NULL,
+residuals.anchorglm <- function(object, newdata=NULL, parameter = NULL,
                                 type = c("deviance", "pearson"), ...) {
 
   type <- match.arg(type)
@@ -135,7 +144,13 @@ residuals.anchorglm <- function(object, newdata=NULL,
   mf <- model.frame(object$formula, data = data)
   Y <- model.response(mf)
   X <- model.matrix(object$formula, data = data)
-  b <- object$coefficients
+
+  if (!is.null(parameter)) {
+    b <- parameter
+  } else {
+    b <- object$coefficients
+  }
+
   m <- object$m
 
   # Handle different form of input for binomial data
