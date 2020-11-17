@@ -5,3 +5,5 @@ inst/doc
 *.html
 *.pdf
 vignettes/*.R
+doc
+Meta
