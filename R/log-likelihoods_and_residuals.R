@@ -9,6 +9,7 @@
 #'
 #' @return log likelihood objective
 #' @export
+#' @importFrom stats dbinom dnorm dpois
 binary_likelihood <- function(b, Y, X, linkinv, m, ...) {
 
   mu <- linkinv(X %*% b)
@@ -97,7 +98,11 @@ normal_likelihood <- function(b, Y, X, linkinv, ...) {
 
   mu <- linkinv(X %*% b)
 
-  -sum((Y - mu)^2)
+  #-sum((Y - mu)^2)
+
+  n <- length(Y)
+  s <- sqrt(1/n * sum((Y-mu)^2))
+  sum(dnorm(Y, mean = mu, sd = s, log = TRUE))
 }
 
 #' Normal deviance residuals

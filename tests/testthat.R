@@ -1,4 +1,4 @@
 library(testthat)
-library(aglm)
+library(glare)
 
-test_check("aglm")
+test_check("glare")

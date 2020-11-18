@@ -12,8 +12,6 @@
 #'  variables in the model. If not found in data, the variables are taken from
 #'   `environment(formula)`.
 #' @param xi a numeric value for the hyperparameter xi.
-#' @param m number of independent bernoulli trials. See the vignette with the
-#'  binomial example for help.
 #' @param family a description of the error distribution and link function to
 #'  be used in the model. This can be a character string naming a family
 #'  function, a family function or the result of a call to a family function.
@@ -28,7 +26,10 @@
 #'  `covariates` is a series of terms which specifies a linear predictor for
 #'  the response.\cr\cr
 #'  For binomial families the response can also be specified as a two-column
-#'  matrix with the columns giving the numbers of successes and failures.\cr\cr
+#'  matrix with the columns giving the numbers of successes and failures. If the
+#'  number of independent bernoulli trials is provided trough the data
+#'  argument, the variable has be called `m`. See the vignette with the
+#'  binomial example for help.\cr\cr
 #'  The anchor formula must have the form `~ anchors`, where `anchors` contains
 #'  all given anchor variables.
 #'
@@ -44,7 +45,6 @@
 #'  \item{A_formula}{the anchor \code{"\link{formula}"} used.}
 #'  \item{data}{the `data` argument.}
 #'  \item{xi}{the hyperparameter used.}
-#'  \item{m}{the used bernoulli trials coefficients. If not used set to `1`.}
 #'  \item{family}{the \code{"\link{formula}"} object used.}
 #'  \item{logLik}{the log-likelihood function used corresponding to the used
 #'  family.}
@@ -57,7 +57,7 @@
 #' @export
 #' @importFrom stats glm family gaussian model.response model.matrix model.frame
 #'  lm fitted optim
-glare <- function(formula, A_formula, data, xi, m = 1,
+glare <- function(formula, A_formula, data, xi,
                        family = gaussian, type = c("deviance", "pearson")) {
   # Initializtation -----------------------------------------------
   type <- match.arg(type)
@@ -82,13 +82,21 @@ glare <- function(formula, A_formula, data, xi, m = 1,
 
   # Handle different form of input for binomial data
   yy <- Y # for initial parameter guess for optim we use glm, see below
+
   if (family$family == "binomial") {
     if (dim(as.matrix(Y))[2] == 2) {
       m <- yy[, 1] + yy[,2]
       Y <- yy[, 1]
-    } else {
+    } else if ("m" %in% names(data)) {
+      m <- data$m
       yy <- cbind(Y, m - Y)
     }
+    else {
+      m <- 1
+      yy <- cbind(Y, m - Y)
+    }
+  } else {
+    m <- 1
   }
 
   # Call link function
@@ -118,6 +126,10 @@ glare <- function(formula, A_formula, data, xi, m = 1,
   }
 
   anchor_penalty <- function(R, A, ...) {
+
+    #P.A <- A %*% solve(t(A) %*% A) %*% t(A)
+    #return(t(R)%*%P.A%*%R)
+
     fit_temp <- lm(R ~ A)
     sum((fitted(fit_temp))^2)
   }

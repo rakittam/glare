@@ -9,7 +9,6 @@ glare(
   A_formula,
   data,
   xi,
-  m = 1,
   family = gaussian,
   type = c("deviance", "pearson")
 )
@@ -26,9 +25,6 @@ variables in the model. If not found in data, the variables are taken from
 \code{environment(formula)}.}
 
 \item{xi}{a numeric value for the hyperparameter xi.}
-
-\item{m}{number of independent bernoulli trials. See the vignette with the
-binomial example for help.}
 
 \item{family}{a description of the error distribution and link function to
 be used in the model. This can be a character string naming a family
@@ -53,7 +49,6 @@ following components:
 \item{A_formula}{the anchor \code{"\link{formula}"} used.}
 \item{data}{the \code{data} argument.}
 \item{xi}{the hyperparameter used.}
-\item{m}{the used bernoulli trials coefficients. If not used set to \code{1}.}
 \item{family}{the \code{"\link{formula}"} object used.}
 \item{logLik}{the log-likelihood function used corresponding to the used
 family.}
@@ -75,7 +70,10 @@ The response-covariate formula must have the form
 \code{covariates} is a series of terms which specifies a linear predictor for
 the response.\cr\cr
 For binomial families the response can also be specified as a two-column
-matrix with the columns giving the numbers of successes and failures.\cr\cr
+matrix with the columns giving the numbers of successes and failures. If the
+number of independent bernoulli trials is provided trough the data
+argument, the variable has be called \code{m}. See the vignette with the
+binomial example for help.\cr\cr
 The anchor formula must have the form \code{~ anchors}, where \code{anchors} contains
 all given anchor variables.
 }

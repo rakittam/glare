@@ -35,6 +35,8 @@ test_that("Testing construction of binomial anchor objective and optimization", 
               nrow = n,
               ncol = 1)
 
+  data <- data.frame(Y = Y, X = X, A = A, m = m)
+
   # Set up test bench
   AGLM <- function(xi) {
 
@@ -75,51 +77,51 @@ test_that("Testing construction of binomial anchor objective and optimization", 
   xi = 0
   YY <- cbind(Y, m - Y)
   fit.glm <- glm(formula = YY ~ X - 1, family = binomial)
-  fit.aglm <- glare(formula = YY ~ X - 1,
-                        A_formula = ~ A - 1,
+  fit.glare <- glare(formula = YY ~ X.1 + X.2 - 1,
+                        A_formula = ~ A.1 + A.2 - 1,
+                    data = data,
                         xi = xi,
-                        m = m,
                         family = binomial,
                         type = "deviance")
   logLik(fit.glm)
-  logLik(fit.aglm)
+  logLik(fit.glare)
 
   xi = 2
   AGLM(xi = xi)
-  as.numeric(glare(formula = Y ~ X - 1,
-                       A_formula = ~ A - 1,
+  as.numeric(glare(formula = Y ~ X.1 + X.2 - 1,
+                       A_formula = ~ A.1 + X.2 - 1,
+                   data = data,
                        xi = xi,
-                       m = m,
                        family = binomial,
                        type = "deviance")$optim$par)
-  as.numeric(glare(formula = Y ~ X - 1,
-                       A_formula = ~ A - 1,
+  as.numeric(glare(formula = Y ~ X.1 + X.2 - 1,
+                       A_formula = ~ A.1 + A.2 - 1,
+                   data = data,
                        xi = xi,
-                       m = m,
                        family = binomial,
                        type = "pearson")$optim$par)
 
   # DISCUSSION 10.11.20
-  # fit.aglm <- glare(formula = Y~X-1, A_formula = ~A-1, xi=xi, m=m, family=binomial, type="deviance")
+  # fit.glare <- glare(formula = Y~X-1, A_formula = ~A-1, xi=xi, m=m, family=binomial, type="deviance")
   #
-  # fit.aglm2 <- glare(formula = Y~X-1, A_formula = ~A-1, xi=xi, m=m, family=binomial, type="deviance")
+  # fit.glare2 <- glare(formula = Y~X-1, A_formula = ~A-1, xi=xi, m=m, family=binomial, type="deviance")
   #
   #
   # # Or with (success, fails)
   # YY <- cbind(Y, m-Y)
   # as.numeric(glare(formula = YY~X-1, A_formula = ~A-1, xi=xi, family=binomial, type="pearson")$optim$par)
   # fit.glm <- glm(formula = YY~X-1, family = binomial)
-  # #fit.aglm3 <-
-  # logLik(fit.aglm)
+  # #fit.glare3 <-
+  # logLik(fit.glare)
   # logLik(fit.glm)
-  # logLik(fit.aglm2)
+  # logLik(fit.glare2)
 
   # Compare results
   expect_equal(AGLM(2),
-               as.numeric(glare(formula = Y ~ X - 1,
-                                    A_formula = ~ A - 1,
+               as.numeric(glare(formula = Y ~ X.1 + X.2 - 1,
+                                    A_formula = ~ A.1 + A.2 - 1,
+                                data = data,
                                     xi = xi,
-                                    m = m,
                                     family = binomial,
                                     type = "deviance")$optim$par),
                tolerance = 0.00001)
@@ -151,6 +153,8 @@ test_that("Testing construction of poisson anchor objective and optimization", {
   X <- g1 * A + H + epsX
 
   Y <- matrix(stats::rpois(n = n, poisson()$linkinv(X + H)), nrow = n, ncol = 1)
+
+  data <- data.frame(Y = Y, X = X, A = A)
 
   # Set up test bench
   AGLM <- function(xi) {
@@ -185,27 +189,28 @@ test_that("Testing construction of poisson anchor objective and optimization", {
 
   xi = 0
   fit.glm <- glm(formula = Y ~ X - 1, family = poisson)
-  fit.aglm <- glare(formula = Y ~ X - 1,
+  fit.glare <- glare(formula = Y ~ X - 1,
                         A_formula = ~ A - 1,
+                    data = data,
                         xi = xi,
-                        m = 1,
                         family = poisson,
                         type = "deviance")
   logLik(fit.glm)
-  logLik(fit.aglm)
+  logLik(fit.glare)
 
   xi = 2
   AGLM(xi)
   as.numeric(glare(formula = Y ~ X - 1,
                        A_formula = ~ A - 1,
+                   data = data,
                        xi = xi,
-                       m = 1,
                        family = poisson,
                        type = "deviance")$optim$par)
 
   expect_equal(AGLM(xi = 2),
                as.numeric(glare(formula = Y ~ X - 1,
                                     A_formula = ~ A - 1,
+                                data = data,
                                     xi = xi,
                                     family = poisson,
                                     type = "deviance")$optim$par),
@@ -238,6 +243,8 @@ test_that("Testing construction of normal anchor objective and optimization", {
   epsY <- matrix(stats::rnorm(n = n, mean = 0, sd = 1), nrow = n, ncol = 1)
   Y <- matrix(X + 2 * H + epsY, nrow = n, ncol = 1)
 
+  data <- data.frame(Y = Y, X = X, A = A)
+
   # Set up test bench
   anchor.regression <- function(X, Y, A, gamma, n) {
 
@@ -253,29 +260,31 @@ test_that("Testing construction of normal anchor objective and optimization", {
 
   xi = 0
   fit.glm <- glm(formula = Y ~ X - 1, family = gaussian)
-  fit.aglm <- glare(formula = Y ~ X - 1,
-                        A_formula = ~ A - 1,
-                        xi = xi,
-                        m = 1,
-                        family = gaussian,
-                        type = "deviance")
+  fit.glare <- glare(formula = Y ~ X - 1,
+                    A_formula = ~ A - 1,
+                    data = data,
+                    xi = xi,
+                    family = gaussian,
+                    type = "deviance")
   logLik(fit.glm)
-  logLik(fit.aglm)
+  logLik(fit.glare)
 
   xi = 2
   gamma <- xi + 1
   as.numeric(anchor.regression(X, Y, A, gamma, n)$coef)
   as.numeric(glare(formula = Y ~ X - 1,
-                       A_formula = ~ A - 1,
-                       xi = xi,
-                       type = "deviance")$optim$par)
+                   A_formula = ~ A - 1,
+                   data = data,
+                   xi = xi,
+                   type = "deviance")$optim$par)
 
   # Compare results
   expect_equal(as.numeric(anchor.regression(X, Y, A, gamma, n)$coef),
                as.numeric(glare(formula = Y ~ X - 1,
-                                    A_formula = ~ A - 1,
-                                    xi = xi,
-                                    type = "deviance")$optim$par),
+                                A_formula = ~ A - 1,
+                                data = data,
+                                xi = xi,
+                                type = "deviance")$optim$par),
                tolerance = 0.001)
 })
 
