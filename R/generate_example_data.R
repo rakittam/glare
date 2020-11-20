@@ -1,4 +1,5 @@
-#' Generate example data for glare
+#' Generate example data for glare, using coefficient matrices and vectors for
+#' the corresponding relations.
 #'
 #' @param n number of observations.
 #' @param dim_X number of covariates.

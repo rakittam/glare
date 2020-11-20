@@ -243,7 +243,6 @@ test_that("Testing construction of normal anchor objective and optimization", {
   # X = H + A + epsX
   XH = 1
   XA = 1
-
   # G = X + 2 * H (Y = G + epsY)
   GX = 1
   GH = 2
@@ -266,6 +265,7 @@ test_that("Testing construction of normal anchor objective and optimization", {
   Y <-  data_list$Y
   X <-  data_list$X
   A <-  data_list$A
+
   n <- length(Y)
 
   # Set up test bench function
@@ -295,6 +295,7 @@ test_that("Testing construction of normal anchor objective and optimization", {
 
   logLik_glm <- as.numeric(logLik(fit.glm))
   logLik_glare <- logLik(fit.glare)
+
   logLik_glm
   logLik_glare
 
@@ -308,6 +309,7 @@ test_that("Testing construction of normal anchor objective and optimization", {
                    data = data,
                    xi = xi,
                    type = "deviance")$optim$par
+
   b_AGLM
   b_glare
 
@@ -317,14 +319,13 @@ test_that("Testing construction of normal anchor objective and optimization", {
   xi <- 1000000
   b_AGLIV <- anchor.regression(X, Y, A, gamma = xi + 1, n)
   b_glare_IV <- glare(formula = Y ~ X - 1,
-                   A_formula = ~ A - 1,
-                   data = data,
-                   xi = xi,
-                   type = "deviance")$optim$par
+                      A_formula = ~ A - 1,
+                      data = data,
+                      xi = xi,
+                      type = "deviance")$optim$par
+
   b_AGLIV
   b_glare_IV
 
   expect_equal(b_AGLIV, b_glare_IV, tolerance = 0.001)
-
 })
-

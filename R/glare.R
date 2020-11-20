@@ -43,7 +43,7 @@
 #'  following components:
 #'  \item{formula}{the response and covariate \code{"\link{formula}"} used.}
 #'  \item{A_formula}{the anchor \code{"\link{formula}"} used.}
-#'  \item{data}{the `data` argument.}
+#'  \item{data}{the `data` argument as data.frame.}
 #'  \item{xi}{the hyperparameter used.}
 #'  \item{family}{the \code{"\link{formula}"} object used.}
 #'  \item{logLik}{the log-likelihood function used corresponding to the used
@@ -60,6 +60,7 @@
 glare <- function(formula, A_formula, data, xi,
                        family = gaussian, type = c("deviance", "pearson")) {
   # Initializtation -----------------------------------------------
+  cal <- match.call()
   type <- match.arg(type)
 
   # Allocate glm family as in glm source code
@@ -79,6 +80,9 @@ glare <- function(formula, A_formula, data, xi,
   Y <- model.response(mf)
   X <- model.matrix(formula, data = data)
   A <- model.matrix(A_formula, data = data)
+
+  Xnames <- dimnames(X)[[2L]]
+  Yname <- dimnames(mf)[[2]][1]
 
   # Handle different form of input for binomial data
   yy <- Y # for initial parameter guess for optim we use glm, see below
@@ -173,18 +177,29 @@ glare <- function(formula, A_formula, data, xi,
                             method = "L-BFGS-B",
                             hessian = TRUE)
 
+  coefficients <- optimized_object$par
+  names(coefficients) <- Xnames
+  hessian <- optimized_object$hessian
+  coef_se <- diag(sqrt(solve(hessian)*1/n))
+  coef_z <- coefficients/coef_se
+  coef_p <- pnorm(-abs(coef_z))  * 2
+
   # Construction of anchor glm class
-  glare_fit <- list(formula = formula,
-                   A_formula = A_formula,
-                   data = data,
-                   xi = xi,
-                   m = m,
-                   family = family,
-                   logLik = log_likelihood,
-                   devianceRes = deviance_residuals,
-                   pearsonRes = pearson_residuals,
-                   optim = optimized_object,
-                   coefficients = optimized_object$par
+  glare_fit <- list(call = cal,
+                    formula = formula,
+                    A_formula = A_formula,
+                    data = data,
+                    xi = xi,
+                    m = m,
+                    family = family,
+                    logLik = log_likelihood,
+                    devianceRes = deviance_residuals,
+                    pearsonRes = pearson_residuals,
+                    optim = optimized_object,
+                    coefficients = coefficients,
+                    coef_se = coef_se,
+                    coef_z = coef_z,
+                    coef_p = coef_p
   )
   class(glare_fit) <- "glare"
 

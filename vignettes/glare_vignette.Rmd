@@ -33,7 +33,7 @@ insight into our method.
 Similarly to the theory of Rothenhaeusler et al., GLARE estimates its parameter
 by minimizing an objective function. However, instead of interpolating between
 the solutions of ordinary least squares and two-stage least squares, we adapt
-GLARE to the GLM framework. The main differences are that we use log likelihood
+GLARE to the GLM framework. The main differences are that we use log-likelihood
 instead of OLS and that suitable residuals must be used. The minimization
 results in
 $$\beta^\xi = \arg\min_\beta -\frac{1}{n}l(\beta; Y, X) +
@@ -81,7 +81,8 @@ $$
 
 If
 you want to reproduce our results, please set the corresponding seed,
-`set.seed(1992)`, before you generate the data.
+`set.seed(1992)`, before you generate the data. Please have a look at the help
+file , `?generate_example_data`, for detailed description of the needed input.
 
 ```{r}
 set.seed(1992)
@@ -161,10 +162,10 @@ In this section we want to investigate our model trained on the initial data
 using different values for $\xi$, on a perturbed data set.
 
 #### Perturbed data set
-First we simulate a perturbed data set by manipulating the anchor coefficients,
-while letting the rest the same as in the initial data. To see the changes
-compared to the original undisturbed data set, we write down again the formulas
-from above that change.
+First we simulate a perturbed data set by manipulating only the anchor
+coefficients, while letting the rest the same as in the initial data. To see the
+changes compared to the original undisturbed data set, we write down again the
+formulas from above that change.
 $$
 \begin{aligned}
 X_1 &= H + 0.5A_1 - 0.2A_2 + \epsilon_{X_1}\\
@@ -274,8 +275,8 @@ loglikelihood_pert_big
 #### Plot of the results
 Finally, we can plot the log-likelihood on the perturbed data against the
 hyperparameter values. As we can see in the figure, in this setup GLARE
-outperforms the other methods in terms of maximal log-likelihood on the
-perturbed data.
+outperforms the other methods with the right hyperparameter, $\xi$, in terms of
+maximal log-likelihood on the perturbed data.
 
 ```{r, fig.height=6, fig.width=6}
 ggplot_data <- data.frame(loglikelihood_pert = loglikelihood_pert,
@@ -308,9 +309,10 @@ provided methods
 have a look at `methods(class = "glare")`.
 
 For example you can generate predictions given by the learned model for either
-the initial or for new data.
+the initial or for new data on the link or the response scale.
 
 ```{r, results='hide'}
-predict(aglm_fit) # predictions for initial unperturbed data
-predict(aglm_fit, newdata = data_pert) # predictions for perturbed data
+predict(aglm_fit, type = "link") # predictions on link scale
+predict(aglm_fit, type = "response") # predictions on response scale
+predict(aglm_fit, newdata = data_pert, type = "link") # perturbed data
 ```
