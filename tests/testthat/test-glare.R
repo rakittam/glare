@@ -64,8 +64,8 @@ test_that("Testing binomial anchor objective and optimization", {
       r.D <- sign(Y / m - p.hat) *
         sqrt(2 * (special.case1(Y) + special.case2(Y)))
 
-      fit.temp <- lm(r.D ~ A)
-      sum((fitted(fit.temp))^2)
+      fit_temp <- lm(r.D ~ A)
+      sum((fitted(fit_temp))^2)
     }
 
     # Step 3. Construct objective by 1. and 2.
@@ -83,16 +83,16 @@ test_that("Testing binomial anchor objective and optimization", {
   # log-likelihood test
   xi <-  0
   YY <- cbind(Y, m - Y)
-  fit.glm <- glm(formula = YY ~ X - 1, family = binomial)
-  fit.glare <- glare(formula = YY ~ X.1 + X.2 - 1,
+  fit_glm <- glm(formula = YY ~ X - 1, family = binomial)
+  fit_glare <- glare(formula = YY ~ X.1 + X.2 - 1,
                      A_formula = ~ A.1 + A.2 - 1,
                      data = data,
                      xi = xi,
                      family = binomial,
                      type = "deviance")
 
-  logLik_glm <- as.numeric(logLik(fit.glm))
-  logLik_glare <- logLik(fit.glare)
+  logLik_glm <- as.numeric(logLik(fit_glm))
+  logLik_glare <- logLik(fit_glare)
   logLik_glm
   logLik_glare
 
@@ -181,8 +181,8 @@ test_that("Testing poisson anchor objective and optimization", {
       }
 
       r.D <- sign(Y - mu.hat) * sqrt(2 * special.case(Y, mu.hat))
-      fit.temp <- lm(r.D ~ A)
-      sum((fitted(fit.temp))^2)
+      fit_temp <- lm(r.D ~ A)
+      sum((fitted(fit_temp))^2)
     }
 
     # Step 3. Construct objective by 1. and 2.
@@ -199,16 +199,16 @@ test_that("Testing poisson anchor objective and optimization", {
 
   # log-likelihood test
   xi <-  0
-  fit.glm <- glm(formula = Y ~ X - 1, family = poisson)
-  fit.glare <- glare(formula = Y ~ X - 1,
+  fit_glm <- glm(formula = Y ~ X - 1, family = poisson)
+  fit_glare <- glare(formula = Y ~ X - 1,
                      A_formula = ~ A - 1,
                      data = data,
                      xi = xi,
                      family = poisson,
                      type = "deviance")
 
-  logLik_glm <- as.numeric(logLik(fit.glm))
-  logLik_glare <- logLik(fit.glare)
+  logLik_glm <- as.numeric(logLik(fit_glm))
+  logLik_glare <- logLik(fit_glare)
   logLik_glm
   logLik_glare
 
@@ -285,16 +285,16 @@ test_that("Testing construction of normal anchor objective and optimization", {
 
   # log-likelihood test
   xi <-  0
-  fit.glm <- glm(formula = Y ~ X - 1, family = gaussian)
-  fit.glare <- glare(formula = Y ~ X - 1,
+  fit_glm <- glm(formula = Y ~ X - 1, family = gaussian)
+  fit_glare <- glare(formula = Y ~ X - 1,
                      A_formula = ~ A - 1,
                      data = data,
                      xi = xi,
                      family = gaussian,
                      type = "deviance")
 
-  logLik_glm <- as.numeric(logLik(fit.glm))
-  logLik_glare <- logLik(fit.glare)
+  logLik_glm <- as.numeric(logLik(fit_glm))
+  logLik_glare <- logLik(fit_glare)
 
   logLik_glm
   logLik_glare

@@ -157,6 +157,56 @@ residuals.glare <- function(object, newdata=NULL, parameter = NULL,
                m = data$m, family = object$family)
 }
 
+#' Object Summary
+#'
+#' Returns summary of an object of class `"glare"`.
+#'
+#' @param object an object of class \code{"\link{glare}"}.
+#' @param ... further arguments passed to or from other methods.
+#'
+#' @return Returns object of class `"summary.glare"`.
+#' @export
+print.glare <- function(object, ...) {
+
+  # Function call
+  cat("\nCall:  ", paste(deparse(object$call), sep = "\n",
+                         collapse = "\n"), "\n\n", sep = "")
+
+  cat("Coefficients:\n")
+  print.default(object$coefficients, print.gap = 2, quote = FALSE)
+  cat("\n")
+
+  fam.table <- matrix(NA, 2, 1L)
+  colnames(fam.table) <- ""
+  rownames(fam.table) <- c("Family: ", "Link: ")
+  fam.table[1,] <- object$family$family
+  fam.table[2,] <- object$family$link
+
+  cat("Used family and link-function:\n")
+  print.default(fam.table, print.gap = 2, quote = FALSE)
+  cat("\n")
+
+
+
+  glare_fit <- list(call = cal,
+                    formula = formula,
+                    A_formula = A_formula,
+                    data = data,
+                    xi = xi,
+                    m = m,
+                    family = family,
+                    logLik = log_likelihood,
+                    devianceRes = deviance_residuals,
+                    pearsonRes = pearson_residuals,
+                    optim = optimized_object,
+                    coefficients = coefficients,
+                    coef_se = coef_se,
+                    coef_z = coef_z,
+                    coef_p = coef_p,
+                    r_D = r_D
+  )
+}
+
 
 #' Object Summary
 #'
@@ -168,7 +218,9 @@ residuals.glare <- function(object, newdata=NULL, parameter = NULL,
 #'
 #' @return Returns object of class `"summary.glare"`.
 #' @export
-summary.glare <- function (object, digits = max(3L, getOption("digits") - 3L), ...) {
+summary.glare <- function (object,
+                           digits = max(3L, getOption("digits") - 3L),
+                           ...) {
 
   # Deviance Residuals
   res.table <- matrix(NA, 1, 6L)
@@ -211,34 +263,21 @@ summary.glare <- function (object, digits = max(3L, getOption("digits") - 3L), .
 #'
 #' @return Prints summary of a `"glare"` object.
 #' @export
-print.summary.glare <- function (object, digits = max(3L, getOption("digits") - 3L), ...) {
-
-  summary_glare <- summary.glare(object, digits = digits)
+print.summary.glare <- function (object, ...) {
 
   # Function call
-  cat("\nCall:  ", paste(deparse(object$call), sep = "\n",
+  cat("\nCall:  ", paste(deparse(object$fit$call), sep = "\n",
                          collapse = "\n"), "\n\n", sep = "")
 
   # Deviance Residuals
   cat("Deviance Residuals:\n")
-  print.default(summary_glare$res.table, print.gap = 2, quote = FALSE)
+  print.default(object$res.table, print.gap = 2, quote = FALSE)
   cat("\n")
 
   # Coefficient estimates
   cat("Coefficients:\n")
-  print.default(summary_glare$coef.table, print.gap = 2, quote = FALSE)
+  print.default(object$coef.table, print.gap = 2, quote = FALSE)
   cat("\n")
 
   invisible(object)
 }
-
-
-
-#
-# summary.glare <- function(object, ...) {
-#   print.summary.glare(object)
-# }
-#
-# summary <- function(object, ...) {
-#   UseMethod("summary")
-# }
