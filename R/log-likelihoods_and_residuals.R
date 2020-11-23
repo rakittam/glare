@@ -97,12 +97,12 @@ poisson_deviance <- function(b, Y, X, linkinv, ...) {
 normal_likelihood <- function(b, Y, X, linkinv, ...) {
 
   mu <- linkinv(X %*% b)
-
-  #-sum((Y - mu)^2)
-
   n <- length(Y)
   s <- sqrt(1/n * sum((Y-mu)^2))
   sum(dnorm(Y, mean = mu, sd = s, log = TRUE))
+
+  # mu <- linkinv(X %*% b)
+  #-sum((Y - mu)^2)
 }
 
 #' Normal deviance residuals
@@ -118,6 +118,10 @@ normal_likelihood <- function(b, Y, X, linkinv, ...) {
 normal_deviance <- function(b, Y, X, linkinv, ...) {
 
   mu <- linkinv(X %*% b)
+  n <- length(Y)
+  s <- sqrt(1/n * sum((Y-mu)^2))
+  1 / s * (Y - mu)
 
-  Y - mu
+  # mu <- linkinv(X %*% b)
+  # Y - mu
 }

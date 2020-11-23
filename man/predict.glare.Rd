@@ -2,7 +2,7 @@
 % Please edit documentation in R/methods.R
 \name{predict.glare}
 \alias{predict.glare}
-\title{predictions for anchor glm object}
+\title{Model Predictions}
 \usage{
 \method{predict}{glare}(
   object,
@@ -13,25 +13,28 @@
 )
 }
 \arguments{
-\item{object}{anchor glm object}
+\item{object}{an object of class \code{"\link{glare}"}.}
 
-\item{newdata}{used for test data, default is NULL}
+\item{newdata}{an optional data frame, list or environment containing the
+variables in the model. If not used, the variables are taken from the
+objective.}
 
-\item{parameter}{parameter that should be used, default takes the parameter
+\item{parameter}{optional parameter input. Default takes the parameter
 from the glare objective.}
 
-\item{type}{the type of prediction required. The default is on the scale of
-the linear predictors; the alternative "response" is on the scale of the
+\item{type}{the scale of prediction. The default is on the scale of
+the linear predictors; the alternative \code{"response"} is on the scale of the
 response variable. Thus for a default binomial model the default predictions
-are of log-odds (probabilities on logit scale) and type = "response" gives
+are of log-odds (probabilities on logit scale) and \code{type = "response"} gives
 the predicted probabilities.}
 
 \item{...}{further arguments passed to or from other methods.}
 }
 \value{
-numeric
+The returned predictions depend on the choosen type of scale (see
+above).
 }
 \description{
-Returns prediction on scale of linear predictor or response of a anchor glm
-object using train or new data
+Returns predictions on scale of linear predictor or response of \code{"glare"}
+object using train or new data.
 }

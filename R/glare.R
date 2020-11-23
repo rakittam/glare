@@ -56,7 +56,7 @@
 #'  \item{coefficients}{the optimal coefficients derived by optim.}
 #' @export
 #' @importFrom stats glm family gaussian model.response model.matrix model.frame
-#'  lm fitted optim
+#'  lm fitted optim pnorm median quantile
 glare <- function(formula, A_formula, data, xi,
                        family = gaussian, type = c("deviance", "pearson")) {
   # Initializtation -----------------------------------------------
@@ -177,12 +177,16 @@ glare <- function(formula, A_formula, data, xi,
                             method = "L-BFGS-B",
                             hessian = TRUE)
 
+  # Coefficients
   coefficients <- optimized_object$par
   names(coefficients) <- Xnames
   hessian <- optimized_object$hessian
-  coef_se <- diag(sqrt(solve(hessian)*1/n))
+  coef_se <- diag(sqrt(solve(hessian)*1/n.obs))
   coef_z <- coefficients/coef_se
   coef_p <- pnorm(-abs(coef_z))  * 2
+
+  # Deviance Residuals:
+  r_D <- deviance_residuals(coefficients, Y, X, linkinv, m)
 
   # Construction of anchor glm class
   glare_fit <- list(call = cal,
@@ -199,7 +203,8 @@ glare <- function(formula, A_formula, data, xi,
                     coefficients = coefficients,
                     coef_se = coef_se,
                     coef_z = coef_z,
-                    coef_p = coef_p
+                    coef_p = coef_p,
+                    r_D = r_D
   )
   class(glare_fit) <- "glare"
 

@@ -2,23 +2,26 @@
 % Please edit documentation in R/methods.R
 \name{logLik.glare}
 \alias{logLik.glare}
-\title{log likelihood of a anchor glm object}
+\title{Extract Log-Likelihood}
 \usage{
 \method{logLik}{glare}(object, newdata = NULL, parameter = NULL, ...)
 }
 \arguments{
-\item{object}{anchor glm object}
+\item{object}{an object of class \code{"\link{glare}"}.}
 
-\item{newdata}{used for test data, default is NULL}
+\item{newdata}{an optional data frame, list or environment containing the
+variables in the model. If not used, the variables are taken from the
+objective.}
 
-\item{parameter}{parameter that should be used, default takes the parameter
+\item{parameter}{optional parameter input. Default takes the parameter
 from the glare objective.}
 
 \item{...}{further arguments passed to or from other methods.}
 }
 \value{
-numeric
+Returns the log-likelihood of an object of class \code{"glare"}.
 }
 \description{
-Returns log likelihood of a anchor glm object using train or new data
+Returns log-likelihood of object with class \code{"glare"}, using initial
+training or new data.
 }

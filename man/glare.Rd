@@ -47,7 +47,7 @@ An object of class \code{"glare"} is a list containing at least the
 following components:
 \item{formula}{the response and covariate \code{"\link{formula}"} used.}
 \item{A_formula}{the anchor \code{"\link{formula}"} used.}
-\item{data}{the \code{data} argument.}
+\item{data}{the \code{data} argument as data.frame.}
 \item{xi}{the hyperparameter used.}
 \item{family}{the \code{"\link{formula}"} object used.}
 \item{logLik}{the log-likelihood function used corresponding to the used

@@ -2,18 +2,18 @@
 % Please edit documentation in R/methods.R
 \name{coef.glare}
 \alias{coef.glare}
-\title{coefficients of anchor glm object}
+\title{Extract Model Coefficients}
 \usage{
 \method{coef}{glare}(object, ...)
 }
 \arguments{
-\item{object}{anchor glm object}
+\item{object}{an object of class \code{"\link{glare}"}.}
 
 \item{...}{further arguments passed to or from other methods.}
 }
 \value{
-numeric
+Coefficients extracted from the model object of class \code{"glare"}.
 }
 \description{
-Returns coefficientes of a anchor glm object
+Returns model coefficients of object with class \code{"glare"}.
 }

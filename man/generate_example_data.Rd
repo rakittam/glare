@@ -2,7 +2,8 @@
 % Please edit documentation in R/generate_example_data.R
 \name{generate_example_data}
 \alias{generate_example_data}
-\title{Generate example data for glare}
+\title{Generate example data for glare, using coefficient matrices and vectors for
+the corresponding relations.}
 \usage{
 generate_example_data(
   n,
@@ -62,7 +63,8 @@ is used.}
 returns a data list of matrices of all the constructed variables.
 }
 \description{
-Generate example data for glare
+Generate example data for glare, using coefficient matrices and vectors for
+the corresponding relations.
 }
 \details{
 For this function only one direction of dependence between X and H
