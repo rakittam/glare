@@ -8,7 +8,7 @@
   object,
   newdata = NULL,
   parameter = NULL,
-  type = c("deviance", "pearson"),
+  type = c("deviance", "pearson", "classical"),
   ...
 )
 }
@@ -23,7 +23,8 @@ objective.}
 from the glare objective.}
 
 \item{type}{the type of residuals which should be returned. The alternatives
-are: "deviance" (default) and "pearson". Can be abbreviated.}
+are: \code{"deviance"} (default), \code{"pearson"} and \code{"classical"}. Can be abbreviated.
+Please use \code{"classical"} only for a gaussian setup.}
 
 \item{...}{further arguments passed to or from other methods.}
 }

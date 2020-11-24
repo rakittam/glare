@@ -261,31 +261,13 @@ test_that("Testing construction of normal anchor objective and optimization", {
 
   # Test bench ----------------------------------------------------------------
 
-  # Set up data
-  Y <-  data_list$Y
-  X <-  data_list$X
-  A <-  data_list$A
-
-  n <- length(Y)
-
-  # Set up test bench function
-  anchor.regression <- function(X, Y, A, gamma, n) {
-
-    P.A <- A %*% solve(t(A) %*% A) %*% t(A)
-    W <- diag(n) - (1 - sqrt(gamma)) * P.A
-
-    Y.tilde <- W %*% Y
-    X.tilde <- W %*% X
-
-    fit <- lm(Y.tilde ~ X.tilde - 1)
-    as.numeric(fit$coefficients)
-  }
+  # We can use anchor_regression function implemented in `glare` as testbench.
 
   # Compare methods -----------------------------------------------------------
 
   # log-likelihood test
   xi <-  0
-  fit_glm <- glm(formula = Y ~ X - 1, family = gaussian)
+  fit_glm <- glm(formula = Y ~ X - 1, data = data, family = gaussian)
   fit_glare <- glare(formula = Y ~ X - 1,
                      A_formula = ~ A - 1,
                      data = data,
@@ -302,30 +284,45 @@ test_that("Testing construction of normal anchor objective and optimization", {
   expect_equal(logLik_glm, logLik_glare, tolerance = 0.001)
 
   # Parameter estimation test
-  xi <- 0.5
-  b_AGLM <- anchor.regression(X, Y, A, gamma = xi + 1, n)
-  b_glare <- glare(formula = Y ~ X - 1,
-                   A_formula = ~ A - 1,
-                   data = data,
-                   xi = xi,
-                   type = "deviance")$optim$par
+  xi <- 10
+  fit_glare <- glare(formula = Y ~ X - 1,
+                     A_formula = ~ A - 1,
+                     data = data,
+                     xi = xi,
+                     type = "deviance")
 
-  b_AGLM
+  b_glare <- as.numeric(fit_glare$optim$par)
+
+  gamma <- 2 * xi + 1 # relation btw xi and gamma using deviance residuals
+  fit_AR <- anchor_regression(formula = Y ~ X - 1,
+                              A_formula = ~ A - 1,
+                              data = data,
+                              gamma = gamma)
+  b_AR <- as.numeric(fit_AR$coefficients)
+
+  b_AR
   b_glare
 
-  expect_equal(b_AGLM, b_glare, tolerance = 0.001)
+  expect_equal(b_AR, b_glare, tolerance = 0.01)
 
   # IV test
   xi <- 1000000
-  b_AGLIV <- anchor.regression(X, Y, A, gamma = xi + 1, n)
-  b_glare_IV <- glare(formula = Y ~ X - 1,
-                      A_formula = ~ A - 1,
-                      data = data,
-                      xi = xi,
-                      type = "deviance")$optim$par
+  fit_glare_IV <- glare(formula = Y ~ X - 1,
+                        A_formula = ~ A - 1,
+                        data = data,
+                        xi = xi,
+                        type = "deviance")
+  b_glare_IV <- as.numeric(fit_glare_IV$optim$par)
 
-  b_AGLIV
+  gamma <- 2 * xi + 1 # relation btw xi and gamma using deviance residuals
+  fit_AR_IV <- anchor_regression(formula = Y ~ X - 1,
+                                 A_formula = ~ A - 1,
+                                 data = data,
+                                 gamma = gamma)
+  b_AR_IV <- as.numeric(fit_AR_IV$coefficients)
+
+  b_AR_IV
   b_glare_IV
 
-  expect_equal(b_AGLIV, b_glare_IV, tolerance = 0.001)
+  expect_equal(b_AR_IV, b_glare_IV, tolerance = 0.01)
 })

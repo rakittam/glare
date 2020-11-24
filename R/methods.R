@@ -134,15 +134,22 @@ predict.glare <- function(object, newdata = NULL, parameter = NULL,
 #' @param parameter optional parameter input. Default takes the parameter
 #'  from the glare objective.
 #' @param type the type of residuals which should be returned. The alternatives
-#'  are: "deviance" (default) and "pearson". Can be abbreviated.
+#'  are: `"deviance"` (default), `"pearson"` and `"classical"`. Can be abbreviated.
+#'  Please use `"classical"` only for a gaussian setup.
 #' @param ... further arguments passed to or from other methods.
 #'
 #' @return Residuals extracted from the model object of class `"glare"`.
 #' @export
 residuals.glare <- function(object, newdata=NULL, parameter = NULL,
-                                type = c("deviance", "pearson"), ...) {
+                            type = c("deviance", "pearson", "classical"), ...) {
 
   type <- match.arg(type)
+
+  if (type == "classical") {
+    if (object$family$family != "gaussian") {
+      stop("Please use classical residuals only for a gaussian setup!")
+    }
+  }
 
   data <- extract_data(object = object,
                        newdata = newdata,
@@ -150,7 +157,8 @@ residuals.glare <- function(object, newdata=NULL, parameter = NULL,
 
   res_function <- switch(type,
                          "deviance" = object$devianceRes,
-                         "pearson" = object$pearsonRes)
+                         "pearson" = object$pearsonRes,
+                         "classical" = object$classicalRes)
 
   res_function(b = data$b, Y = data$Y, X = data$X,
                linkinv = object$family$linkinv,

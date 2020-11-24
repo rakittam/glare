@@ -10,7 +10,7 @@ glare(
   data,
   xi,
   family = gaussian,
-  type = c("deviance", "pearson")
+  type = c("deviance", "pearson", "classical")
 )
 }
 \arguments{
@@ -33,8 +33,9 @@ See \code{\link{family}} for details. The families supported up to now are
 \code{gaussian}, \code{binomial} and \code{poisson}.}
 
 \item{type}{the type of residuals that should be used for the anchor
-penalty. The supported alternatives are \code{"deviance"} (default) and
-\code{"pearson"}. Can be abbreviated.}
+penalty. The supported alternatives are \code{"deviance"} (default), \code{"pearson"}
+and \code{"classical"}. Can be abbreviated. Please use \code{"classical"} only for a
+gaussian setup.}
 }
 \value{
 \code{glare} returns an object of class \code{"glare"}.\cr\cr
@@ -75,5 +76,8 @@ number of independent bernoulli trials is provided trough the data
 argument, the variable has be called \code{m}. See the vignette with the
 binomial example for help.\cr\cr
 The anchor formula must have the form \code{~ anchors}, where \code{anchors} contains
-all given anchor variables.
+all given anchor variables.\cr\cr
+For a classical linear gaussian setup we recommand to use anchor regression,
+constructed by Rothenhaeusler et al. (see \code{anchor_regression} for more
+information).
 }

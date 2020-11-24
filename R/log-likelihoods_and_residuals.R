@@ -100,9 +100,6 @@ normal_likelihood <- function(b, Y, X, linkinv, ...) {
   n <- length(Y)
   s <- sqrt(1/n * sum((Y-mu)^2))
   sum(dnorm(Y, mean = mu, sd = s, log = TRUE))
-
-  # mu <- linkinv(X %*% b)
-  #-sum((Y - mu)^2)
 }
 
 #' Normal deviance residuals
@@ -121,7 +118,20 @@ normal_deviance <- function(b, Y, X, linkinv, ...) {
   n <- length(Y)
   s <- sqrt(1/n * sum((Y-mu)^2))
   1 / s * (Y - mu)
+}
 
-  # mu <- linkinv(X %*% b)
-  # Y - mu
+#' Normal classical residuals
+#'
+#' @param b parameter vector
+#' @param Y n-dimensional vector
+#' @param X nxp matrix
+#' @param linkinv inversion of link function
+#' @param ... other
+#'
+#' @return deviance residuals
+#' @export
+normal_classical <- function(b, Y, X, linkinv, ...) {
+
+  mu <- linkinv(X %*% b)
+  Y - mu
 }

@@ -18,8 +18,9 @@
 #'  See \code{\link{family}} for details. The families supported up to now are
 #'  `gaussian`, `binomial` and `poisson`.
 #' @param type the type of residuals that should be used for the anchor
-#'  penalty. The supported alternatives are `"deviance"` (default) and
-#'  `"pearson"`. Can be abbreviated.
+#'  penalty. The supported alternatives are `"deviance"` (default), `"pearson"`
+#'  and `"classical"`. Can be abbreviated. Please use `"classical"` only for a
+#'  gaussian setup.
 #'
 #' @details The response-covariate formula must have the form
 #'  `response ~ covariates`, where `response` is the response vector and
@@ -31,7 +32,10 @@
 #'  argument, the variable has be called `m`. See the vignette with the
 #'  binomial example for help.\cr\cr
 #'  The anchor formula must have the form `~ anchors`, where `anchors` contains
-#'  all given anchor variables.
+#'  all given anchor variables.\cr\cr
+#'  For a classical linear gaussian setup we recommand to use anchor regression,
+#'  constructed by Rothenhaeusler et al. (see `anchor_regression` for more
+#'  information).
 #'
 #' @return `glare` returns an object of class `"glare"`.\cr\cr
 #'  The function \code{\link{summary}} (i.e., \code{\link{summary.glare}})
@@ -58,8 +62,9 @@
 #' @importFrom stats glm family gaussian model.response model.matrix model.frame
 #'  lm fitted optim pnorm median quantile
 glare <- function(formula, A_formula, data, xi,
-                       family = gaussian, type = c("deviance", "pearson")) {
-  # Initializtation -----------------------------------------------
+                  family = gaussian,
+                  type = c("deviance", "pearson", "classical")) {
+  # Initialization ------------------------------------------------------------
   cal <- match.call()
   type <- match.arg(type)
 
@@ -109,7 +114,7 @@ glare <- function(formula, A_formula, data, xi,
   # Extract number of observations
   n.obs <- length(Y)
 
-  # Function assignment -----------------------------------------------
+  # Function assignment -------------------------------------------------------
   # Assign needed functions depending on given glm family
   log_likelihood <- switch(family$family,
                            "binomial" = binary_likelihood,
@@ -138,11 +143,19 @@ glare <- function(formula, A_formula, data, xi,
     sum((fitted(fit_temp))^2)
   }
 
+  classicalRes <- NULL
   if (type == "deviance") {
     anch_res <- deviance_residuals
-  }
-  if (type == "pearson") {
+  } else if (type == "pearson") {
     anch_res <- pearson_residuals
+  } else if (type == "classical") {
+    if (family$family != "gaussian") {
+      stop("Please use classical residuals only for a gaussian setup!")
+    }
+    anch_res <- normal_classical
+    classicalRes <- normal_classical
+  } else {
+    stop("Some error with the residual type occured!")
   }
 
   # Construction of anchor objective ------------------------------------------
@@ -161,7 +174,7 @@ glare <- function(formula, A_formula, data, xi,
                                    A = A))
   }
 
-  # Run optimization algorithm -----------------------------------------------
+  # Run optimization algorithm ------------------------------------------------
 
   # Fit glm for initial parameter value
   if ("(Intecept)" %in% attributes(X)$dimnames[[ 2 ]]) {
@@ -202,6 +215,7 @@ glare <- function(formula, A_formula, data, xi,
                     logLik = log_likelihood,
                     devianceRes = deviance_residuals,
                     pearsonRes = pearson_residuals,
+                    classicalRes = classicalRes,
                     optim = optimized_object,
                     coefficients = coefficients,
                     coef_se = coef_se,
