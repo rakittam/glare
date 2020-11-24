@@ -188,6 +188,9 @@ glare <- function(formula, A_formula, data, xi,
   # Deviance Residuals:
   r_D <- deviance_residuals(coefficients, Y, X, linkinv, m)
 
+  # Pearson Residuals:
+  r_P <- pearson_residuals(coefficients, Y, X, linkinv, m, family = family)
+
   # Construction of anchor glm class
   glare_fit <- list(call = cal,
                     formula = formula,
@@ -204,7 +207,8 @@ glare <- function(formula, A_formula, data, xi,
                     coef_se = coef_se,
                     coef_z = coef_z,
                     coef_p = coef_p,
-                    r_D = r_D
+                    r_D = r_D,
+                    r_P = r_P
   )
   class(glare_fit) <- "glare"
 

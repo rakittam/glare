@@ -3,6 +3,7 @@
 S3method(coef,glare)
 S3method(logLik,glare)
 S3method(predict,glare)
+S3method(print,glare)
 S3method(print,summary.glare)
 S3method(residuals,glare)
 S3method(summary,glare)

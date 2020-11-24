@@ -161,50 +161,104 @@ residuals.glare <- function(object, newdata=NULL, parameter = NULL,
 #'
 #' Returns summary of an object of class `"glare"`.
 #'
-#' @param object an object of class \code{"\link{glare}"}.
+#' @param x an object of class \code{"\link{glare}"}.
+#' @param show_hess should the approximated hessian be printed.
 #' @param ... further arguments passed to or from other methods.
 #'
-#' @return Returns object of class `"summary.glare"`.
+#' @return Prints an object of class `"glare"` in compressed form.
 #' @export
-print.glare <- function(object, ...) {
+print.glare <- function(x, show_hess = TRUE, ...) {
 
-  # Function call
-  cat("\nCall:  ", paste(deparse(object$call), sep = "\n",
+  # Function call -------------------------------------------------------------
+  cat("\nCall:  ", paste(deparse(x$call), sep = "\n",
                          collapse = "\n"), "\n\n", sep = "")
 
-  cat("Coefficients:\n")
-  print.default(object$coefficients, print.gap = 2, quote = FALSE)
-  cat("\n")
-
+  # Family and link -----------------------------------------------------------
   fam.table <- matrix(NA, 2, 1L)
   colnames(fam.table) <- ""
   rownames(fam.table) <- c("Family: ", "Link: ")
-  fam.table[1,] <- object$family$family
-  fam.table[2,] <- object$family$link
+  fam.table[1, ] <- x$family$family
+  fam.table[2, ] <- x$family$link
 
-  cat("Used family and link-function:\n")
+  cat("Used family and link-function:")
   print.default(fam.table, print.gap = 2, quote = FALSE)
   cat("\n")
 
+  # Log-likelihood ------------------------------------------------------------
+  data <- extract_data(object = x,
+                       newdata = NULL,
+                       parameter = NULL)
 
+  logLike_value <- x$logLik(b = data$b,
+                                 Y = data$Y,
+                                 X = data$X,
+                                 linkinv = x$family$linkinv,
+                                 m = data$m)
+  cat("Log-likelihood:\n")
+  cat(logLike_value)
+  cat("\n")
 
-  glare_fit <- list(call = cal,
-                    formula = formula,
-                    A_formula = A_formula,
-                    data = data,
-                    xi = xi,
-                    m = m,
-                    family = family,
-                    logLik = log_likelihood,
-                    devianceRes = deviance_residuals,
-                    pearsonRes = pearson_residuals,
-                    optim = optimized_object,
-                    coefficients = coefficients,
-                    coef_se = coef_se,
-                    coef_z = coef_z,
-                    coef_p = coef_p,
-                    r_D = r_D
-  )
+  # Residuals -----------------------------------------------------------------
+
+  # Deviance Residuals
+  res.table <- matrix(NA, 1, 6L)
+  dimnames(res.table) <- list(NULL, c("Min.", "1st Qu.", "Median",
+                                      "Mean", "3rd Qu.", "Max."))
+  rownames(res.table) <- ""
+  res.table[1, 1] <- round(min(x$r_D), digits = 4)
+  res.table[1, 2] <- as.numeric(round(quantile(x$r_D)[2], digits = 4))
+  res.table[1, 3] <- round(median(x$r_D), digits = 4)
+  res.table[1, 4] <- round(mean(x$r_D), digits = 4)
+  res.table[1, 5] <- as.numeric(round(quantile(x$r_D)[4], digits = 4))
+  res.table[1, 6] <- round(max(x$r_D), digits = 4)
+
+  cat("\n")
+  cat("Deviance Residuals:\n")
+  print.default(res.table, print.gap = 2, quote = FALSE)
+  cat("\n")
+
+  # Pearson Residuals
+  resP.table <- matrix(NA, 1, 6L)
+  dimnames(resP.table) <- list(NULL, c("Min.", "1st Qu.", "Median",
+                                      "Mean", "3rd Qu.", "Max."))
+  rownames(resP.table) <- ""
+  resP.table[1, 1] <- round(min(x$r_P), digits = 4)
+  resP.table[1, 2] <- as.numeric(round(quantile(x$r_P)[2], digits = 4))
+  resP.table[1, 3] <- round(median(x$r_P), digits = 4)
+  resP.table[1, 4] <- round(mean(x$r_P), digits = 4)
+  resP.table[1, 5] <- as.numeric(round(quantile(x$r_P)[4], digits = 4))
+  resP.table[1, 6] <- round(max(x$r_P), digits = 4)
+
+  cat("Pearson Residuals:\n")
+  print.default(resP.table, print.gap = 2, quote = FALSE)
+  cat("\n")
+
+  # Optimization: -------------------------------------------------------------
+  cat("Optimization:")
+
+  # Value and convergence
+  optim.table <- matrix(NA, 2, 1L)
+  colnames(optim.table) <- ""
+  rownames(optim.table) <- c("Object-value at parameters: ", "Convergence: ")
+  optim.table[1, ] <- round(x$optim$value, digits = 4)
+  optim.table[2, ] <- ifelse(x$optim$convergence == 0, "Yes", "No")
+
+  print.default(optim.table, print.gap = 2, quote = FALSE)
+  cat("\n")
+
+  # Coefficients
+  cat("Coefficients:\n")
+  print.default(x$coefficients, print.gap = 2, quote = FALSE)
+  cat("\n")
+
+  # Hessian
+  if (show_hess) {
+    cat("Hessian:\n")
+    print.default(x$optim$hessian, print.gap = 2, quote = FALSE)
+    cat("\n")
+  }
+
+  invisible(x)
 }
 
 
@@ -227,12 +281,12 @@ summary.glare <- function (object,
   dimnames(res.table) <- list(NULL, c("Min.", "1st Qu.", "Median",
                                       "Mean", "3rd Qu.", "Max."))
   rownames(res.table) <- ""
-  res.table[,1] <- round(min(object$r_D), digits)
-  res.table[1,2] <- as.numeric(round(quantile(object$r_D)[2], digits))
-  res.table[1,3] <- round(median(object$r_D), digits)
-  res.table[1,4] <- round(mean(object$r_D), digits)
-  res.table[1,5] <- as.numeric(round(quantile(object$r_D)[4], digits))
-  res.table[1,6] <- round(max(object$r_D), digits)
+  res.table[1, 1] <- round(min(object$r_D), digits)
+  res.table[1, 2] <- as.numeric(round(quantile(object$r_D)[2], digits))
+  res.table[1, 3] <- round(median(object$r_D), digits)
+  res.table[1, 4] <- round(mean(object$r_D), digits)
+  res.table[1, 5] <- as.numeric(round(quantile(object$r_D)[4], digits))
+  res.table[1, 6] <- round(max(object$r_D), digits)
 
   # Coefficient estimates
   coef.table <- matrix(NA, length(object$coefficients), 4L)
@@ -257,27 +311,26 @@ summary.glare <- function (object,
 #'
 #' Returns summary of a glare object.
 #'
-#' @param object an object of class \code{"\link{glare}"}.
-#' @param digits integer for number of digits used for the rounded result.
+#' @param x an object of class \code{"\link{glare}"}.
 #' @param ... further arguments passed to or from other methods.
 #'
 #' @return Prints summary of a `"glare"` object.
 #' @export
-print.summary.glare <- function (object, ...) {
+print.summary.glare <- function (x, ...) {
 
   # Function call
-  cat("\nCall:  ", paste(deparse(object$fit$call), sep = "\n",
+  cat("\nCall:  ", paste(deparse(x$fit$call), sep = "\n",
                          collapse = "\n"), "\n\n", sep = "")
 
   # Deviance Residuals
   cat("Deviance Residuals:\n")
-  print.default(object$res.table, print.gap = 2, quote = FALSE)
+  print.default(x$res.table, print.gap = 2, quote = FALSE)
   cat("\n")
 
   # Coefficient estimates
   cat("Coefficients:\n")
-  print.default(object$coef.table, print.gap = 2, quote = FALSE)
+  print.default(x$coef.table, print.gap = 2, quote = FALSE)
   cat("\n")
 
-  invisible(object)
+  invisible(x)
 }

@@ -4,12 +4,10 @@
 \alias{print.summary.glare}
 \title{Print of summary method for \code{"glare"} object.}
 \usage{
-\method{print}{summary.glare}(object, digits = max(3L, getOption("digits") - 3L), ...)
+\method{print}{summary.glare}(x, ...)
 }
 \arguments{
-\item{object}{an object of class \code{"\link{glare}"}.}
-
-\item{digits}{integer for number of digits used for the rounded result.}
+\item{x}{an object of class \code{"\link{glare}"}.}
 
 \item{...}{further arguments passed to or from other methods.}
 }
