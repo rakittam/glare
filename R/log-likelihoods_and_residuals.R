@@ -5,17 +5,23 @@
 #' @param X nxp matrix
 #' @param linkinv inversion of link function
 #' @param m integer
+#' @param indiv logical input if log-likelihood of each observation or the sum
+#'  of the log-likelihoods should be returned.
 #' @param ... other
 #'
 #' @return log likelihood objective
 #' @export
 #' @importFrom stats dbinom dnorm dpois
-binary_likelihood <- function(b, Y, X, linkinv, m, ...) {
+binary_likelihood <- function(b, Y, X, linkinv, m, indiv = FALSE, ...) {
 
   mu <- linkinv(X %*% b)
+  logLik_indiv <- dbinom(Y, m, mu, log = TRUE)
 
-  #sum(log(choose(m, Y)) + Y * log(mu) + (m - Y) * log(1 - mu))
-  sum(dbinom(Y, m, mu, log = TRUE))
+  if (indiv) {
+    return(logLik_indiv)
+  } else {
+    return(sum(logLik_indiv))
+  }
 }
 
 #' Binary deviance residuals
@@ -49,17 +55,22 @@ binary_deviance <- function(b, Y, X, linkinv, m, ...) {
 #' @param Y n-dimensional vector
 #' @param X nxp matrix
 #' @param linkinv inversion of link function
+#' @param indiv logical input if log-likelihood of each observation or the sum
+#'  of the log-likelihoods should be returned.
 #' @param ... other
 #'
 #' @return log likelihood objective
 #' @export
-poisson_likelihood <- function(b, Y, X, linkinv, ...) {
+poisson_likelihood <- function(b, Y, X, linkinv, indiv = FALSE, ...) {
 
   mu <- linkinv(X %*% b)
+  logLik_indiv <- dpois(Y, mu, log = TRUE)
 
-  #sum(Y * log(mu) - mu)
-  #sum(Y * log(mu) - mu - log(factorial(Y)))
-  sum(dpois(Y, mu, log = TRUE))
+  if (indiv) {
+    return(logLik_indiv)
+  } else {
+    return(sum(logLik_indiv))
+  }
 }
 
 #' Poisson deviance residuals
@@ -90,16 +101,24 @@ poisson_deviance <- function(b, Y, X, linkinv, ...) {
 #' @param Y n-dimensional vector
 #' @param X nxp matrix
 #' @param linkinv inversion of link function
+#' @param indiv logical input if log-likelihood of each observation or the sum
+#'  of the log-likelihoods should be returned.
 #' @param ... other
 #'
 #' @return log likelihood objective
 #' @export
-normal_likelihood <- function(b, Y, X, linkinv, ...) {
+normal_likelihood <- function(b, Y, X, linkinv, indiv = FALSE, ...) {
 
   mu <- linkinv(X %*% b)
   n <- length(Y)
   s <- sqrt(1/n * sum((Y-mu)^2))
-  sum(dnorm(Y, mean = mu, sd = s, log = TRUE))
+  logLik_indiv <- dnorm(Y, mean = mu, sd = s, log = TRUE)
+
+  if (indiv) {
+    return(logLik_indiv)
+  } else {
+    return(sum(logLik_indiv))
+  }
 }
 
 #' Normal deviance residuals

@@ -4,7 +4,7 @@
 \alias{binary_likelihood}
 \title{Binary log likelihood}
 \usage{
-binary_likelihood(b, Y, X, linkinv, m, ...)
+binary_likelihood(b, Y, X, linkinv, m, indiv = FALSE, ...)
 }
 \arguments{
 \item{b}{parameter vector}
@@ -16,6 +16,9 @@ binary_likelihood(b, Y, X, linkinv, m, ...)
 \item{linkinv}{inversion of link function}
 
 \item{m}{integer}
+
+\item{indiv}{logical input if log-likelihood of each observation or the sum
+of the log-likelihoods should be returned.}
 
 \item{...}{other}
 }

@@ -57,11 +57,14 @@ extract_data <- function(object, newdata = NULL, parameter = NULL, ...) {
 #'  objective.
 #' @param parameter optional parameter input. Default takes the parameter
 #'  from the glare objective.
+#' @param indiv logical input if log-likelihood of each observation or the sum
+#'  of the log-likelihoods should be returned.
 #' @param ... further arguments passed to or from other methods.
 #'
 #' @return Returns the log-likelihood of an object of class `"glare"`.
 #' @export
-logLik.glare <- function(object, newdata = NULL, parameter = NULL, ...) {
+logLik.glare <- function(object, newdata = NULL, parameter = NULL,
+                         indiv = FALSE, ...) {
 
   data <- extract_data(object = object,
                        newdata = newdata,
@@ -71,7 +74,7 @@ logLik.glare <- function(object, newdata = NULL, parameter = NULL, ...) {
                 Y = data$Y,
                 X = data$X,
                 linkinv = object$family$linkinv,
-                m = object$m)
+                m = object$m, indiv = indiv)
 }
 
 #' Extract Model Coefficients

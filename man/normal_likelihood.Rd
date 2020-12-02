@@ -4,7 +4,7 @@
 \alias{normal_likelihood}
 \title{Normal likelihood}
 \usage{
-normal_likelihood(b, Y, X, linkinv, ...)
+normal_likelihood(b, Y, X, linkinv, indiv = FALSE, ...)
 }
 \arguments{
 \item{b}{parameter vector}
@@ -14,6 +14,9 @@ normal_likelihood(b, Y, X, linkinv, ...)
 \item{X}{nxp matrix}
 
 \item{linkinv}{inversion of link function}
+
+\item{indiv}{logical input if log-likelihood of each observation or the sum
+of the log-likelihoods should be returned.}
 
 \item{...}{other}
 }

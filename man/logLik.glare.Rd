@@ -4,7 +4,7 @@
 \alias{logLik.glare}
 \title{Extract Log-Likelihood}
 \usage{
-\method{logLik}{glare}(object, newdata = NULL, parameter = NULL, ...)
+\method{logLik}{glare}(object, newdata = NULL, parameter = NULL, indiv = FALSE, ...)
 }
 \arguments{
 \item{object}{an object of class \code{"\link{glare}"}.}
@@ -15,6 +15,9 @@ objective.}
 
 \item{parameter}{optional parameter input. Default takes the parameter
 from the glare objective.}
+
+\item{indiv}{logical input if log-likelihood of each observation or the sum
+of the log-likelihoods should be returned.}
 
 \item{...}{further arguments passed to or from other methods.}
 }
