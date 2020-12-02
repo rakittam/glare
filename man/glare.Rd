@@ -78,6 +78,6 @@ binomial example for help.\cr\cr
 The anchor formula must have the form \code{~ anchors}, where \code{anchors} contains
 all given anchor variables.\cr\cr
 For a classical linear gaussian setup we recommand to use anchor regression,
-constructed by Rothenhaeusler et al. (see \code{anchor_regression} for more
+constructed by Rothenhaeusler et al. (see \code{?anchor_regression} for more
 information).
 }

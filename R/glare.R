@@ -34,7 +34,7 @@
 #'  The anchor formula must have the form `~ anchors`, where `anchors` contains
 #'  all given anchor variables.\cr\cr
 #'  For a classical linear gaussian setup we recommand to use anchor regression,
-#'  constructed by Rothenhaeusler et al. (see `anchor_regression` for more
+#'  constructed by Rothenhaeusler et al. (see `?anchor_regression` for more
 #'  information).
 #'
 #' @return `glare` returns an object of class `"glare"`.\cr\cr
@@ -194,7 +194,7 @@ glare <- function(formula, A_formula, data, xi,
   coefficients <- optimized_object$par
   names(coefficients) <- Xnames
   hessian <- optimized_object$hessian
-  coef_se <- diag(sqrt(solve(hessian)*1/n.obs))
+  coef_se <- sqrt(diag(solve(hessian))*1/n.obs)
   coef_z <- coefficients/coef_se
   coef_p <- pnorm(-abs(coef_z))  * 2
 

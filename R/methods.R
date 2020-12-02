@@ -71,7 +71,7 @@ logLik.glare <- function(object, newdata = NULL, parameter = NULL, ...) {
                 Y = data$Y,
                 X = data$X,
                 linkinv = object$family$linkinv,
-                m = data$m)
+                m = object$m)
 }
 
 #' Extract Model Coefficients

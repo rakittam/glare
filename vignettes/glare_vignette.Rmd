@@ -76,11 +76,10 @@ $$
 H &\sim \mathcal{N}(0, 1)\\
 A &\sim \text{Rademacher}_2\\
 X &= M A + H + \epsilon_X, \text{ where } \epsilon_X \sim \mathcal{N}_2(0, 1)\\
-Y&\sim \text{binomial}(m, p), \text{ where } g(p) = \text{logit}(p) = b^TX + H + MA\text{ .} \end{aligned}
+Y&\sim \text{binomial}(p), \text{ where } g(p) = \text{logit}(p) = b^TX + H + MA\text{ .} \end{aligned}
 $$
 
-If
-you want to reproduce our results, please set the corresponding seed,
+If you want to reproduce our results, please set the corresponding seed,
 `set.seed(1992)`, before you generate the data. Please have a look at the help
 file , `?generate_example_data`, for detailed description of the needed input.
 
@@ -90,7 +89,7 @@ set.seed(1992)
 # Generate unperturbed data ---------------------------------------------------
 
   # Number of observations
-  n <- 1000
+  n <- 1000 
 
   # H = epsH
   HX = NULL
@@ -101,13 +100,13 @@ set.seed(1992)
   XH = rbind(1, 1)
   XA = rbind(c(0.5, -0.2), c(0.5, -0.4))
 
-  # G = 3 * X1 + 3 * X2 + H - 2 * A1
-  GX = c(3, 3)
-  GH = 1
-  GA = c(-2, 0)
+  # G = 0.4 * X1 + 0.6 * X2 + 0.4 * H - 0.8 * A1
+  GX = c(0.4, 0.6)
+  GH = 0.4
+  GA = c(-0.8, 0)
 
   data_list <- generate_example_data(n = n, dim_X = 2, dim_A = 2, dim_H = 1,
-                                     family = binomial, m_max = 5,
+                                     family = binomial,
                                      A_distr = "rademacher",
                                      XH = XH, XA = XA,
                                      HX = HX,  HA = HA,
@@ -115,8 +114,7 @@ set.seed(1992)
 
   data <- data.frame(Y = data_list$Y,
                      X = data_list$X,
-                     A = data_list$A,
-                     m = data_list$m)
+                     A = data_list$A)
 ```
 
 ### How to apply `glare`
@@ -132,7 +130,7 @@ For a first intuition we set the hyperparameter, $\xi$, to
 two and use deviance residuals for the anchor penalty.
 
 ```{r}
-aglm_fit <- glare(formula = Y ~ X.1 + X.2 - 1,
+glare_fit <- glare(formula = Y ~ X.1 + X.2 - 1,
                   A_formula = ~ A.1 + A.2 - 1,
                   data = data,
                   xi = 2,
@@ -148,8 +146,8 @@ It shall be noted that `glare` can handle different form of input for
 binomial data, i.e.
 ```{r}
 # Response as a matrix with number of success and losses for each observation
-SL <- cbind(data$Y, data$m - data$Y)
-aglm_fit_SL <- glare(formula = SL ~ X.1 + X.2 - 1,
+SL <- cbind(data$Y, 1 - data$Y)
+glare_fit_SL <- glare(formula = SL ~ X.1 + X.2 - 1,
                      A_formula = ~ A.1 + A.2 - 1,
                      data = data,
                      xi = 2,
@@ -187,11 +185,11 @@ $$
 # X2_pert = H - 1.5 * A1 - 0.4 * A2 + epsX
 XA_pert = rbind(c(-1.5, -0.5), c(-1.5, -0.4))
 
-# G_pert = 3 * X1 + 3 * X2 + H + 2 * A1
-GA_pert = c(2, 0)
+# G_pert = 0.4 * X1 + 0.6 * X2 + 0.4 * H + 0.8 * A1
+GA_pert = c(0.8, 0)
 
 data_list_pert <- generate_example_data(n = n, dim_X = 2, dim_A = 2, dim_H = 1,
-                                        family = binomial, m_max = 5,
+                                        family = binomial,
                                         A_distr = "rademacher",
                                         XH = XH, XA = XA_pert,
                                         HX = HX,  HA = HA,
@@ -199,15 +197,14 @@ data_list_pert <- generate_example_data(n = n, dim_X = 2, dim_A = 2, dim_H = 1,
 
 data_pert <- data.frame(Y = data_list_pert$Y,
                         X = data_list_pert$X,
-                        A = data_list_pert$A,
-                        m = data_list_pert$m)
+                        A = data_list_pert$A)
 ```
 
 #### Iterating over the hyperparameter
 Next, we iterate over $\xi$ and use `glare` for each iteration. We store the
 estimated coefficients and the log-likelihood on the perturbed data set.
 ```{r}
-xi_vec <- seq(-1, 2, by = 0.1)
+xi_vec <- seq(-1, 5, by = 0.1)
 b_matrix <- matrix(nrow = length(xi_vec), ncol = 2)
 loglikelihood_pert <- numeric(length(xi_vec))
 
@@ -227,7 +224,7 @@ for (i in 1:length(xi_vec)) {
 ```
 
 Moreover, we calculate additional estimates for comparison: maximum likelihood
-estimation, partialling out the effect of the anchors A and
+estimation, an analogy to partialling out the effect of the anchors A and
 letting $\xi$ go to infinity. In the following the corresponding parameter
 estimates and the corresponding log-likelihood on the perturbed data is given.
 The reader should be aware that like anchor regression, GLARE does not aim for
@@ -251,7 +248,7 @@ glm(SL ~ data_list$X - 1, family = "binomial")$coef
 loglikelihood_pert_MLE <- loglikelihood_pert[which(xi_vec == xi_MLE)]
 loglikelihood_pert_MLE 
 
-# PA --------------------------------------------------------------------------
+# PA-like ---------------------------------------------------------------------
 xi_PA <- -1
 b_PA <- b_matrix[which(xi_vec == xi_PA), ]
 b_PA
@@ -259,7 +256,7 @@ loglikelihood_pert_PA <- loglikelihood_pert[which(xi_vec == xi_PA)]
 loglikelihood_pert_PA
 
 # big xi ----------------------------------------------------------------------
-xi_big <- 1000000
+xi_big <- 1000
 fit_big <- glare(formula = Y ~ X.1 + X.2 - 1,
                  A_formula = ~ A.1 + A.2 - 1,
                  data = data,
@@ -295,11 +292,11 @@ ggplot(data = ggplot_data, aes(y = loglikelihood_pert, x = xi_vec)) +
   annotate("point", colour = "green4",
            x = xi_MLE, y = loglikelihood_pert_MLE) +
   annotate("text", label = "MLE",
-           x = xi_MLE + 0.15, y = loglikelihood_pert_MLE) +
+           x = xi_MLE + 0.3, y = loglikelihood_pert_MLE) +
   annotate("point", colour = "blue1",
            x = xi_PA, y = loglikelihood_pert_PA) +
-  annotate("text", label = "PA",
-           x = xi_PA + 0.1, y = loglikelihood_pert_PA) 
+  annotate("text", label = "PA-like",
+           x = xi_PA + 0.4, y = loglikelihood_pert_PA) 
 ```
 
 ### Methods
@@ -312,7 +309,12 @@ For example you can generate predictions given by the learned model for either
 the initial or for new data on the link or the response scale.
 
 ```{r, results='hide'}
-predict(aglm_fit, type = "link") # predictions on link scale
-predict(aglm_fit, type = "response") # predictions on response scale
-predict(aglm_fit, newdata = data_pert, type = "link") # perturbed data
+predict(glare_fit, type = "link") # predictions on link scale
+predict(glare_fit, type = "response") # predictions on response scale
+predict(glare_fit, newdata = data_pert, type = "link") # perturbed data
+```
+
+Or one can print the summary of a fitted `glare` object.
+```{r}
+summary(glare_fit)
 ```
