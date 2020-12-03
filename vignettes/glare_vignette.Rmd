@@ -75,8 +75,8 @@ $$
 \begin{aligned}
 H &\sim \mathcal{N}(0, 1)\\
 A &\sim \text{Rademacher}_2\\
-X &= M A + H + \epsilon_X, \text{ where } \epsilon_X \sim \mathcal{N}_2(0, 1)\\
-Y&\sim \text{binomial}(p), \text{ where } g(p) = \text{logit}(p) = b^TX + H + MA\text{ .} \end{aligned}
+X &= M_1 A + H + \epsilon_X, \text{ where } \epsilon_X \sim \mathcal{N}_2(0, 1)\\
+Y&\sim \text{binomial}(p), \text{ where } g(p) = \text{logit}(p) = b^TX + H + M_2 A\text{ .} \end{aligned}
 $$
 
 If you want to reproduce our results, please set the corresponding seed,
