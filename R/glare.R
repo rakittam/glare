@@ -8,7 +8,7 @@
 #'  and covariate variables.
 #' @param A_formula an object of class \code{"\link{formula}"} for the anchor
 #'  variables.
-#' @param data an optional data frame, list or environment containing the
+#' @param data data frame, list or environment containing the
 #'  variables in the model. If not found in data, the variables are taken from
 #'   `environment(formula)`.
 #' @param xi a numeric value for the hyperparameter xi.
@@ -61,10 +61,13 @@
 #' @export
 #' @importFrom stats glm family gaussian model.response model.matrix model.frame
 #'  lm fitted optim pnorm median quantile
-glare <- function(formula, A_formula, data, xi,
+glare <- function(formula, A_formula, data = NULL, xi,
                   family = gaussian,
                   type = c("deviance", "pearson", "classical")) {
   # Initialization ------------------------------------------------------------
+  if (is.null(data)) {
+    stop("Please enter a valid data argument, defining the used variables in the formula.")}
+
   cal <- match.call()
   type <- match.arg(type)
 
@@ -79,8 +82,8 @@ glare <- function(formula, A_formula, data, xi,
   }
 
   # Construction of model formula
-  if (missing(data))
-    data <- environment(formula)
+  # if (missing(data))
+  #   data <- environment(formula)
   mf <- model.frame(formula, data = data)
   Y <- model.response(mf)
   X <- model.matrix(formula, data = data)

@@ -1,7 +1,7 @@
 Generalized Linear Anchor Regression
 ================
 Maic Rakitta
-2020-12-03
+2020-12-05
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
@@ -146,10 +146,12 @@ binomial data, i.e.
 
 ``` r
 # Response as a matrix with number of success and losses for each observation
-SL <- cbind(data$Y, 1 - data$Y)
-glare_fit_SL <- glare(formula = SL ~ X.1 + X.2 - 1,
-                     A_formula = ~ A.1 + A.2 - 1,
-                     data = data,
+SL <- cbind(data_list$Y, 1 - data_list$Y)
+data_SL <- list(SL = SL, X = data_list$X, A = data_list$A)
+
+glare_fit_SL <- glare(formula = SL ~ X - 1,
+                     A_formula = ~ A - 1,
+                     data = data_SL,
                      xi = 2,
                      family = "binomial",
                      type = "deviance")

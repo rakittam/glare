@@ -16,6 +16,9 @@
 extract_data <- function(object, newdata = NULL, parameter = NULL, ...) {
 
   if (!is.null(newdata)) {
+    if (!prod(names(object$data) %in% names(newdata))) {
+      stop("The original data has variables that are not defined in newdata!")
+    }
     data <- newdata
   } else {
     data <- object$data
@@ -23,7 +26,7 @@ extract_data <- function(object, newdata = NULL, parameter = NULL, ...) {
 
   mf <- model.frame(object$formula, data = data)
   Y <- model.response(mf)
-  X <- model.matrix(object$formula, data = data)
+  X <- model.matrix(object = object$formula, data = data)
 
   if (!is.null(parameter)) {
     b <- parameter
@@ -36,10 +39,10 @@ extract_data <- function(object, newdata = NULL, parameter = NULL, ...) {
     m <- Y[, 1] + Y[, 2]
     Y <- Y[, 1]
   } else {
-    if (!is.null(newdata)) {
-      m <- newdata$m
+    if ("m" %in% names(data)) {
+      m <- data$m
     } else {
-      m <- object$m
+      m <- 1
     }
   }
 
@@ -74,7 +77,7 @@ logLik.glare <- function(object, newdata = NULL, parameter = NULL,
                 Y = data$Y,
                 X = data$X,
                 linkinv = object$family$linkinv,
-                m = object$m, indiv = indiv)
+                m = data$m)
 }
 
 #' Extract Model Coefficients
