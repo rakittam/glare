@@ -77,7 +77,8 @@ logLik.glare <- function(object, newdata = NULL, parameter = NULL,
                 Y = data$Y,
                 X = data$X,
                 linkinv = object$family$linkinv,
-                m = data$m)
+                m = data$m,
+                indiv = indiv)
 }
 
 #' Extract Model Coefficients
@@ -303,14 +304,12 @@ summary.glare <- function (object,
   res.table[1, 6] <- round(max(object$r_D), digits)
 
   # Coefficient estimates
-  coef.table <- matrix(NA, length(object$coefficients), 4L)
+  coef.table <- matrix(NA, length(object$coefficients), 2L)
   dimnames(coef.table) <- list(NULL, c("Estimate",
-                                       "Std. Error", "t value", "Pr(>|t|)"))
+                                       "Std. Error"))
   rownames(coef.table) <- names(object$coefficients)
   coef.table[, 1] <- round(object$coefficients, digits)
   coef.table[, 2] <- round(object$coef_se, digits)
-  coef.table[, 3] <- round(object$coef_z, digits)
-  coef.table[, 4] <- ifelse(object$coef_p < 2e-16, "<2e-16", object$coef_p)
 
   # Output summary class
   ans <- list(fit = object,
