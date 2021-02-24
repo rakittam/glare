@@ -303,18 +303,38 @@ summary.glare <- function (object,
   res.table[1, 5] <- as.numeric(round(quantile(object$r_D)[4], digits))
   res.table[1, 6] <- round(max(object$r_D), digits)
 
+  # Pearson Residuals
+  res.table_P <- matrix(NA, 1, 6L)
+  dimnames(res.table_P) <- list(NULL, c("Min.", "1st Qu.", "Median",
+                                      "Mean", "3rd Qu.", "Max."))
+  rownames(res.table_P) <- ""
+  res.table_P[1, 1] <- round(min(object$r_P), digits)
+  res.table_P[1, 2] <- as.numeric(round(quantile(object$r_P)[2], digits))
+  res.table_P[1, 3] <- round(median(object$r_P), digits)
+  res.table_P[1, 4] <- round(mean(object$r_P), digits)
+  res.table_P[1, 5] <- as.numeric(round(quantile(object$r_P)[4], digits))
+  res.table_P[1, 6] <- round(max(object$r_P), digits)
+
   # Coefficient estimates
-  coef.table <- matrix(NA, length(object$coefficients), 2L)
-  dimnames(coef.table) <- list(NULL, c("Estimate",
-                                       "Std. Error"))
+  coef.table <- matrix(NA, length(object$coefficients), 1L)
+  dimnames(coef.table) <- list(NULL, c("Estimate"))
   rownames(coef.table) <- names(object$coefficients)
   coef.table[, 1] <- round(object$coefficients, digits)
-  coef.table[, 2] <- round(object$coef_se, digits)
+
+
+  # # Coefficient estimates
+  # coef.table <- matrix(NA, length(object$coefficients), 2L)
+  # dimnames(coef.table) <- list(NULL, c("Estimate",
+  #                                      "Std. Error"))
+  # rownames(coef.table) <- names(object$coefficients)
+  # coef.table[, 1] <- round(object$coefficients, digits)
+  # coef.table[, 2] <- round(object$coef_se, digits)
 
   # Output summary class
   ans <- list(fit = object,
               digits = digits,
               res.table = res.table,
+              res.table_P = res.table_P,
               coef.table = coef.table)
   class(ans) <- "summary.glare"
   return(ans)
@@ -335,10 +355,17 @@ print.summary.glare <- function (x, ...) {
   cat("\nCall:  ", paste(deparse(x$fit$call), sep = "\n",
                          collapse = "\n"), "\n\n", sep = "")
 
-  # Deviance Residuals
-  cat("Deviance Residuals:\n")
-  print.default(x$res.table, print.gap = 2, quote = FALSE)
-  cat("\n")
+  if (x$fit$type == "deviance") {
+    # Deviance Residuals
+    cat("Deviance Residuals:\n")
+    print.default(x$res.table, print.gap = 2, quote = FALSE)
+    cat("\n")
+  } else if (x$fit$type == "pearson") {
+    # Pearson Residuals
+    cat("Pearson Residuals:\n")
+    print.default(x$res.table_P, print.gap = 2, quote = FALSE)
+    cat("\n")
+  }
 
   # Coefficient estimates
   cat("Coefficients:\n")

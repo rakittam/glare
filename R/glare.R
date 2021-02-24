@@ -225,8 +225,9 @@ glare <- function(formula, A_formula, data = NULL, xi,
                     coef_z = coef_z,
                     coef_p = coef_p,
                     r_D = r_D,
-                    r_P = r_P
-  )
+                    r_P = r_P,
+                    type = type)
+
   class(glare_fit) <- "glare"
 
   glare_fit
