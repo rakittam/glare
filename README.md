@@ -13,7 +13,7 @@ Buehlmann, in the Department of Mathematics at ETH Zurich.
 
 My thesis proposes Generalized Linear Anchor REgression (GLARE), which
 constitutes a generalisation of Anchor Regression (AR) by
-[Rothenhaeusler, Meinshausen, Buehlmann and
+[Rothenhaeusler,Meinshausen, Buehlmann and
 Peters](https://rss.onlinelibrary.wiley.com/doi/abs/10.1111/rssb.12398)
 to Generalised Linear Models (GLM).
 

@@ -66,7 +66,8 @@ glare <- function(formula, A_formula, data = NULL, xi,
                   type = c("deviance", "pearson", "classical")) {
   # Initialization ------------------------------------------------------------
   if (is.null(data)) {
-    stop("Please enter a valid data argument, defining the used variables in the formula.")}
+    stop("Please enter a valid data argument, defining the used variables in the
+         formula.")}
 
   cal <- match.call()
   type <- match.arg(type)
@@ -82,8 +83,6 @@ glare <- function(formula, A_formula, data = NULL, xi,
   }
 
   # Construction of model formula
-  # if (missing(data))
-  #   data <- environment(formula)
   mf <- model.frame(formula, data = data)
   Y <- model.response(mf)
   X <- model.matrix(formula, data = data)
