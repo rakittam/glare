@@ -15,7 +15,7 @@ normal_classical(b, Y, X, linkinv, ...)
 
 \item{linkinv}{inversion of link function}
 
-\item{...}{other}
+\item{...}{further arguments passed to or from other methods.}
 }
 \value{
 deviance residuals

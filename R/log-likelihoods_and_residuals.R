@@ -7,7 +7,7 @@
 #' @param m integer
 #' @param indiv logical input if log-likelihood of each observation or the sum
 #'  of the log-likelihoods should be returned.
-#' @param ... other
+#' @param ... further arguments passed to or from other methods.
 #'
 #' @return log likelihood objective
 #' @export
@@ -31,7 +31,7 @@ binary_likelihood <- function(b, Y, X, linkinv, m, indiv = FALSE, ...) {
 #' @param X nxp matrix
 #' @param linkinv inversion of link function
 #' @param m integer
-#' @param ... other
+#' @param ... further arguments passed to or from other methods.
 #'
 #' @return deviance residuals
 #' @export
@@ -57,7 +57,7 @@ binary_deviance <- function(b, Y, X, linkinv, m, ...) {
 #' @param linkinv inversion of link function
 #' @param indiv logical input if log-likelihood of each observation or the sum
 #'  of the log-likelihoods should be returned.
-#' @param ... other
+#' @param ... further arguments passed to or from other methods.
 #'
 #' @return log likelihood objective
 #' @export
@@ -79,7 +79,7 @@ poisson_likelihood <- function(b, Y, X, linkinv, indiv = FALSE, ...) {
 #' @param Y n-dimensional vector
 #' @param X nxp matrix
 #' @param linkinv inversion of link function
-#' @param ... other
+#' @param ... further arguments passed to or from other methods.
 #'
 #' @return deviance residuals
 #' @export
@@ -103,7 +103,7 @@ poisson_deviance <- function(b, Y, X, linkinv, ...) {
 #' @param linkinv inversion of link function
 #' @param indiv logical input if log-likelihood of each observation or the sum
 #'  of the log-likelihoods should be returned.
-#' @param ... other
+#' @param ... further arguments passed to or from other methods.
 #'
 #' @return log likelihood objective
 #' @export
@@ -127,7 +127,7 @@ normal_likelihood <- function(b, Y, X, linkinv, indiv = FALSE, ...) {
 #' @param Y n-dimensional vector
 #' @param X nxp matrix
 #' @param linkinv inversion of link function
-#' @param ... other
+#' @param ... further arguments passed to or from other methods.
 #'
 #' @return deviance residuals
 #' @export
@@ -145,7 +145,7 @@ normal_deviance <- function(b, Y, X, linkinv, ...) {
 #' @param Y n-dimensional vector
 #' @param X nxp matrix
 #' @param linkinv inversion of link function
-#' @param ... other
+#' @param ... further arguments passed to or from other methods.
 #'
 #' @return deviance residuals
 #' @export

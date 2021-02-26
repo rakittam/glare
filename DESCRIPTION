@@ -1,12 +1,14 @@
 Package: glare
 Title: Generalized Linear Anchor Regression
-Version: 0.0.0.9001
+Version: 0.0-1
 Authors@R: 
     person(given = "Maic",
            family = "Rakitta",
            role = c("aut", "cre"),
            email = "maicrakitta@gmail.com",
            comment = c(ORCID = "YOUR-ORCID-ID"))
+Authors: Maic Rakitta (aut, cre), Lucas Kook (aut), Peter Bühlmann (aut)
+Maintainer: Maic Rakitta
 Description: Extension of recent research on distributional robustness and causality under weakened assumptions, with the goal of a robust predictor under heterogeneous environments in a generalized linear framework.
 License: GPL-2
 Encoding: UTF-8
@@ -14,8 +16,5 @@ LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
 Suggests: 
-    testthat,
-    knitr,
-    rmarkdown,
-    ggplot2
+    testthat, knitr, rmarkdown, ggplot2
 VignetteBuilder: knitr

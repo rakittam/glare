@@ -1,18 +1,19 @@
 #' Anchor Regression
 #'
 #' Anchor regression function taken from Dominik Rothenhaeusler, Nicolai
-#'  Meinshausen, Peter Buehlmann and Jonas Peters, 2020 - "Anchor regression:
-#'  heterogeneous data meet causality".
+#'  Meinshausen, Peter Buehlmann and Jonas Peters, 2021 - "Anchor regression:
+#'  heterogeneous data meet causality", retrieved February 24, 2021,
+#'  [https://doi.org/10.1111/rssb.12398].
 #'
 #' @param formula an object of class \code{"\link{formula}"} for the response
-#'  and covariate variables. Please use always a formula without intercept.
+#'  and covariate variables.
 #' @param A_formula an object of class \code{"\link{formula}"} for the anchor
-#'  variables. Please use always a formula without intercept.
+#'  variables.
 #' @param data an optional data frame, list or environment containing the
 #'  variables in the model. If not found in data, the variables are taken from
 #'   `environment(formula)`.
 #' @param gamma numeric value for hyperparameter gamma.
-#' @param ... other
+#' @param ... further arguments from other methods.
 #'
 #' @details We recommand to use `anchor_regression` for a classical linear
 #'  gaussian setup. However, there exists a relationship to `glare` using

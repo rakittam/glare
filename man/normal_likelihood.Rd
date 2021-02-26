@@ -18,7 +18,7 @@ normal_likelihood(b, Y, X, linkinv, indiv = FALSE, ...)
 \item{indiv}{logical input if log-likelihood of each observation or the sum
 of the log-likelihoods should be returned.}
 
-\item{...}{other}
+\item{...}{further arguments passed to or from other methods.}
 }
 \value{
 log likelihood objective

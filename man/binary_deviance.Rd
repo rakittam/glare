@@ -17,7 +17,7 @@ binary_deviance(b, Y, X, linkinv, m, ...)
 
 \item{m}{integer}
 
-\item{...}{other}
+\item{...}{further arguments passed to or from other methods.}
 }
 \value{
 deviance residuals

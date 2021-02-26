@@ -17,14 +17,10 @@ knitr::opts_chunk$set(
 ```
 This vignette offers an introduction with examples to the first Generalized
 Linear Anchor REgression (GLARE) package version. We extended the work of
-Dominik Rothenhaeusler, Nicolai Meinshausen, Peter Buehlmann and Jonas Peters,
+[Rothenhaeusler, Meinshausen, Buehlmann and Peters](https://rss.onlinelibrary.wiley.com/doi/abs/10.1111/rssb.12398),
 who developed a linear anchor regression method. GLARE extends their work from a
-linear to a generalized linear framework. In this vignette we give only a thin
-theoretical introduction to GLARE and focus more on how the reader can apply the
-corresponding R package. Since the development is not yet finished, we are
-grateful for your input. Furthermore, we cannot yet provide GLARE literature.
-For anchor regression we recommend the corresponding work of Rothenhaeusler et
-al.
+linear to a generalized linear framework. In this vignette we will give a short
+theoretical introduction to GLARE and focus on how the GLARE package is applied in R. For a more detailed description of the theory of GLARE, please correspond with the author for material.
 
 This vignette makes no claim to completeness, but rather provides a first
 insight into our method.
@@ -33,8 +29,8 @@ insight into our method.
 Similarly to the theory of Rothenhaeusler et al., GLARE estimates its parameter
 by minimizing an objective function. However, instead of interpolating between
 the solutions of ordinary least squares and two-stage least squares, we adapt
-GLARE to the GLM framework. The main differences are that we use log-likelihood
-instead of OLS and that suitable residuals must be used. The minimization
+GLARE to the GLM framework. The main differences are that we use the negative log-likelihood
+instead of OLS and that suitable GLM residuals (e.g. deviance, Pearson) must be used for the causal regularizer. The minimization
 results in
 $$\beta^\xi = \arg\min_\beta -\frac{1}{n}l(\beta; Y, X) +
 \frac{1}{n}\xi ||Ar||_2^2,$$
@@ -42,12 +38,12 @@ where $X \in \mathbb{R}^{n\times p}$ are the covariates, $Y \in \mathbb{R}^{n}$
 is the response, $A \in \mathbb{R}^{n\times q}$ are the anchor variables and
 $r \in \mathbb{R}^{n}$ are appropriate residuals (e.g. deviance residuals,
 pearson residuals). The hyperparameter $\xi \in \{-1, \infty\}$ interpolates
-between maximizing the log-likelihood, $l$, and partialling out the effect of
+between minimizing the negative log-likelihood, $l$, and partialling out the effect of
 the anchor onto the residuals. Note that there can also be hidden variables,
 $H \in \mathbb{R}^{n\times h}$, influencing both the response and the covariates.
 
 ## Getting started
-The package is still in development. For the most up-to-date version, feel free
+For the most up-to-date version, feel free
 to send a request directly to the author (rakittam@student.ethz.ch) to receive
 the corresponding source package.
 
@@ -63,10 +59,10 @@ library(ggplot2) # used for plots
 ```
 
 ## Example: Binomial Framework
-The given example is constructed in a binomial framework. First we
+The given example is constructed in a Binomial framework. First we
 construct an artificial data set. Next, we show how to apply GLARE to the
 generated data. Finally, we investigate the model on a perturbed data set and
-plot some result.
+plot some results.
 
 ### Data Construction
 In this section we simulate the unperturbed data for the binomial example. The
@@ -143,7 +139,7 @@ and a description of the error distribution, we have fitted a generalized linear
 anchor model. The function returns an object of class `"glare"`.
 
 It shall be noted that `glare` can handle different form of input for
-binomial data, i.e.
+Binomial data, i.e.
 ```{r}
 # Response as a matrix with number of success and losses for each observation
 SL <- cbind(data_list$Y, 1 - data_list$Y)
@@ -174,8 +170,8 @@ X_2 &= H + 0.5A_1 - 0.4A_2 + \epsilon_{X_2}\\
 X_2^\text{pert} &= H - 1.5A_1 - 0.4A_2 + \epsilon_{X_2^\text{pert}}
 \end{aligned}
 \begin{aligned}
-G &= 0.4X_1 + 0.6X_2 + 0.4H - 0.8A_1\\
-G^\text{pert} &= 0.4X_1^\text{pert} + 0.6X_2^\text{pert} + 0.4H + 0.8A_1
+G &= 3X_1 + 3X_2 + H - 2A_1\\
+G^\text{pert} &= 3X_1^\text{pert} + 3X_2^\text{pert} + H + 2A_1
 \end{aligned}
 $$
 
@@ -206,7 +202,7 @@ data_pert <- data.frame(Y = data_list_pert$Y,
 Next, we iterate over $\xi$ and use `glare` for each iteration. We store the
 estimated coefficients and the log-likelihood on the perturbed data set.
 ```{r}
-xi_vec <- seq(-1, 5, by = 0.1)
+xi_vec <- seq(0, 5, by = 0.1)
 b_matrix <- matrix(nrow = length(xi_vec), ncol = 2)
 loglikelihood_pert <- numeric(length(xi_vec))
 
@@ -221,24 +217,23 @@ for (i in 1:length(xi_vec)) {
                     type = "deviance")
 
   b_matrix[i, ] <- coef(fit_temp)
-  loglikelihood_pert[i] <- logLik(fit_temp, newdata = data_pert)
+  loglikelihood_pert[i] <- -logLik(fit_temp, newdata = data_pert)
 }
 ```
 
 Moreover, we calculate additional estimates for comparison: maximum likelihood
-estimation, an analogy to partialling out the effect of the anchors A and
-letting $\xi$ go to infinity. In the following the corresponding parameter
-estimates and the corresponding log-likelihood on the perturbed data is given.
+estimation and for large $\xi = 1000$. In the following the corresponding parameter
+estimates and the corresponding negative log-likelihood on the perturbed data is given.
 The reader should be aware that like anchor regression, GLARE does not aim for
-the true underlying causal function, but rather tries to maximize the
-log-likelihood.
+the true underlying causal function, but rather tries to minimize the
+negative log-likelihood.
 ```{r}
 # Optimal xi ------------------------------------------------------------------
-xi_opt <- xi_vec[which.max(loglikelihood_pert)]
+xi_opt <- xi_vec[which.min(loglikelihood_pert)]
 xi_opt
-b_opt <- b_matrix[which.max(loglikelihood_pert), ]
+b_opt <- b_matrix[which.min(loglikelihood_pert), ]
 b_opt
-loglikelihood_pert_opt <- max(loglikelihood_pert)
+loglikelihood_pert_opt <- min(loglikelihood_pert)
 loglikelihood_pert_opt
 
 # MLE -------------------------------------------------------------------------
@@ -250,13 +245,6 @@ glm(SL ~ data_list$X - 1, family = "binomial")$coef
 loglikelihood_pert_MLE <- loglikelihood_pert[which(xi_vec == xi_MLE)]
 loglikelihood_pert_MLE 
 
-# PA-like ---------------------------------------------------------------------
-xi_PA <- -1
-b_PA <- b_matrix[which(xi_vec == xi_PA), ]
-b_PA
-loglikelihood_pert_PA <- loglikelihood_pert[which(xi_vec == xi_PA)]
-loglikelihood_pert_PA
-
 # big xi ----------------------------------------------------------------------
 xi_big <- 1000
 fit_big <- glare(formula = Y ~ X.1 + X.2 - 1,
@@ -267,15 +255,15 @@ fit_big <- glare(formula = Y ~ X.1 + X.2 - 1,
                  type = "deviance")
 b_big <- coef(fit_big)
 b_big
-loglikelihood_pert_big <- logLik(fit_big, newdata = data_pert)
+loglikelihood_pert_big <- -logLik(fit_big, newdata = data_pert)
 loglikelihood_pert_big
 ```
 
 #### Plot of the results
-Finally, we can plot the log-likelihood on the perturbed data against the
+Finally, we can plot the negative log-likelihood on the perturbed data against the
 hyperparameter values. As we can see in the figure, in this setup GLARE
 outperforms the other methods with the right hyperparameter, $\xi$, in terms of
-maximal log-likelihood on the perturbed data.
+minimal negative log-likelihood on the perturbed data.
 
 ```{r, fig.height=6, fig.width=6}
 ggplot_data <- data.frame(loglikelihood_pert = loglikelihood_pert,
@@ -284,21 +272,17 @@ ggplot(data = ggplot_data, aes(y = loglikelihood_pert, x = xi_vec)) +
 
   geom_line() +
   
-  labs(title = "log-likelihood of the perturped data set",
-       x = "Hyperparameter xi", y = "log-likelihood") +
+  labs(title = "Negative log-likelihood of the perturped data set",
+       x = "Hyperparameter xi", y = "negative log-likelihood") +
 
   annotate("point", colour = "red",
            x = xi_opt, y = loglikelihood_pert_opt) +
   annotate("text", label = "optimal xi",
-           x = xi_opt, y = loglikelihood_pert_opt + 1.5) +
+           x = xi_opt, y = loglikelihood_pert_opt - 1.4) +
   annotate("point", colour = "green4",
            x = xi_MLE, y = loglikelihood_pert_MLE) +
   annotate("text", label = "MLE",
-           x = xi_MLE + 0.3, y = loglikelihood_pert_MLE) +
-  annotate("point", colour = "blue1",
-           x = xi_PA, y = loglikelihood_pert_PA) +
-  annotate("text", label = "PA-like",
-           x = xi_PA + 0.4, y = loglikelihood_pert_PA) 
+           x = xi_MLE + 0.3, y = loglikelihood_pert_MLE)
 ```
 
 ### Methods

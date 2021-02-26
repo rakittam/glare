@@ -8,10 +8,10 @@ anchor_regression(formula, A_formula, data, gamma, ...)
 }
 \arguments{
 \item{formula}{an object of class \code{"\link{formula}"} for the response
-and covariate variables. Please use always a formula without intercept.}
+and covariate variables.}
 
 \item{A_formula}{an object of class \code{"\link{formula}"} for the anchor
-variables. Please use always a formula without intercept.}
+variables.}
 
 \item{data}{an optional data frame, list or environment containing the
 variables in the model. If not found in data, the variables are taken from
@@ -19,15 +19,16 @@ variables in the model. If not found in data, the variables are taken from
 
 \item{gamma}{numeric value for hyperparameter gamma.}
 
-\item{...}{other}
+\item{...}{further arguments from other methods.}
 }
 \value{
 returns fitted lm object of the transformed variables.
 }
 \description{
 Anchor regression function taken from Dominik Rothenhaeusler, Nicolai
-Meinshausen, Peter Buehlmann and Jonas Peters, 2020 - "Anchor regression:
-heterogeneous data meet causality".
+Meinshausen, Peter Buehlmann and Jonas Peters, 2021 - "Anchor regression:
+heterogeneous data meet causality", retrieved February 24, 2021,
+\link{https://doi.org/10.1111/rssb.12398}.
 }
 \details{
 We recommand to use \code{anchor_regression} for a classical linear

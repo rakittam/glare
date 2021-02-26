@@ -7,7 +7,7 @@
 glare(
   formula,
   A_formula,
-  data,
+  data = NULL,
   xi,
   family = gaussian,
   type = c("deviance", "pearson", "classical")
@@ -20,7 +20,7 @@ and covariate variables.}
 \item{A_formula}{an object of class \code{"\link{formula}"} for the anchor
 variables.}
 
-\item{data}{an optional data frame, list or environment containing the
+\item{data}{data frame, list or environment containing the
 variables in the model. If not found in data, the variables are taken from
 \code{environment(formula)}.}
 
