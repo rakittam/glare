@@ -1,14 +1,9 @@
 Package: glare
 Title: Generalized Linear Anchor Regression
 Version: 0.0-1
-Authors@R: 
-    person(given = "Maic",
-           family = "Rakitta",
-           role = c("aut", "cre"),
-           email = "maicrakitta@gmail.com",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Authors: Maic Rakitta (aut, cre), Lucas Kook (aut), Peter Bühlmann (aut)
-Maintainer: Maic Rakitta
+Authors@R: c(person(given = "Maic", family = "Rakitta", role = c("aut", "cre"),
+    email = "maicrakitta@gmail.com"), person("Lucas", "Kook", role = "ths"),
+    person("Peter", "Buehlmann", role = "ths"))
 Description: Extension of recent research on distributional robustness and causality under weakened assumptions, with the goal of a robust predictor under heterogeneous environments in a generalized linear framework.
 License: GPL-2
 Encoding: UTF-8
